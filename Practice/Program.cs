@@ -20,7 +20,7 @@ public class Program
 
         BankService bankService = new BankService();
         Employee employee = bankService.ClientToEmployee(client);
-        bankService.OwnerSalary(employees);
+        bankService.CalculateOwnerSalary(employees);
 
         ContractUpdate(employees);
         CurrencyUpdate(currency);
@@ -30,7 +30,7 @@ public class Program
     {
         foreach (var employee in employees)
         {
-            employee.Contract = "Заключен контракт";
+            employee.Contract = $"Контракт для {employee.FirstName} {employee.SecondName}, Должность: {employee.IsOwner}, Зарплата: {employee.Sallary} руб.";
         }
         
     }
