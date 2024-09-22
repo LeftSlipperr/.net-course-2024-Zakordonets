@@ -4,7 +4,7 @@ namespace BankSystem.App.Services;
 
 public class BankService
 {
-    public void OwnerSalary(List<Employee> employees)
+    public void CalculateOwnerSalary(List<Employee> employees)
     {
         var owners = employees.Where(e => e.IsOwner).ToList();
         int Salary = (40000 - 10000) / owners.Count;
@@ -18,7 +18,9 @@ public class BankService
     {
         Employee employee = new Employee()
         {
-            FirstName = client.FirstName, SecondName = client.SecondName, Number = client.Number,
+            FirstName = client.FirstName, 
+            SecondName = client.SecondName, 
+            Number = client.Number,
             PasNumber = client.PasNumber
         };
 
