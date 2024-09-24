@@ -10,20 +10,13 @@ public class BankService
         int Salary = (40000 - 10000) / owners.Count;
         foreach (var owner in owners)
         {
-            owner.Sallary = Salary;
+            owner.Salary = Salary;
         }
     }
 
     public Employee ClientToEmployee(Client client)
     {
-        Employee employee = new Employee()
-        {
-            FirstName = client.FirstName, 
-            SecondName = client.SecondName, 
-            Number = client.Number,
-            PasNumber = client.PasNumber
-        };
-
+        Employee employee = new Employee(client.FullName.ToString(), false, 80000, client.Number.ToString(), client.PasNumber.ToString());
         return employee;
     }
 }
