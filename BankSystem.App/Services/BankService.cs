@@ -16,7 +16,13 @@ public class BankService
 
     public Employee ClientToEmployee(Client client)
     {
-        Employee employee = new Employee(client.FullName.ToString(), false, 80000, client.Number.ToString(), client.PasNumber.ToString());
+        Employee employee = new Employee()
+        {
+            FullName = client.FullName, 
+            PhoneNumber = client.PhoneNumber,
+            PasNumber = client.PasNumber
+        };
+
         return employee;
     }
 }

@@ -7,14 +7,20 @@ public class Program
 {
     static TestDataGenerator testDataGenerator = new TestDataGenerator();
     static BankService bankService = new BankService();
-    public static List<Employee> employees = testDataGenerator.GenerateEmployee();
+    public static List<Employee> employees = testDataGenerator.EmployeesList();
     
     public static void Main(string[] args) 
     {
-        List<Client> clients = testDataGenerator.GenerateClient();
-        Dictionary<string, Client> clientsPhone = testDataGenerator.GenerateDictionaryClient();
-        
-        Client client = new Client("Tom Holland", "08098098", "1ПР-12412412", 18) {  };
+        List<Client> clients = testDataGenerator.ClientsList();
+        Dictionary<string, Client> clientsPhone = testDataGenerator.ClientsDictionary() ;
+
+        Client client = new Client
+        {
+            FullName = "Tom Holland",
+            PhoneNumber = "08098098",
+            PasNumber = "1ПР-12412412",
+            Age = 18
+        };
         Currency currency = new Currency(){CurrencyName = "Usd", Symbol = "$"};
         
         Employee employee = bankService.ClientToEmployee(client);
@@ -24,33 +30,56 @@ public class Program
         CurrencyUpdate(currency);
 
         Random random = new Random();
-        string phoneToFind = clients[random.Next(clients.Count)].Number;
+        string phoneToFind = clients[random.Next(clients.Count)].PhoneNumber;
         Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
+        Client foundClient;
+
+        for (int i = 0; i < 100; i++)
+        {
+            stopwatch.Start();
         
-        Client foundClient = clients.Find(client => client.Number == phoneToFind);
+             foundClient = clients.Find(client => client.PhoneNumber == phoneToFind);
         
-        stopwatch.Stop();
-        stopwatch.Reset();
+            stopwatch.Stop();
+            stopwatch.Reset();
+        }
+
+        for (int i = 0; i < 100; i++)
+        {
+            stopwatch.Start();
+            
+            foundClient = clientsPhone[phoneToFind];
+            
+            stopwatch.Stop();
+            stopwatch.Reset();
+        }
         
-        stopwatch.Start();
-        foundClient = clientsPhone[phoneToFind];
-        stopwatch.Stop();
 
         List<Client> clientsUnderAge = clients.Where(clnt => clnt.Age < 19).ToList();
         
         var employeeWithMinSalary = employees.OrderBy(empl => empl.Salary).First();
-        
-        stopwatch.Start();
-        clientsPhone.FirstOrDefault();
-        stopwatch.Stop();
-        stopwatch.Reset();
 
-        string number = clientsPhone.FirstOrDefault().Value.Number;
+        for (int i = 0; i < 100; i++)
+        {
+            stopwatch.Start();
         
-        stopwatch.Start();
-        client = clientsPhone[number];
-        stopwatch.Stop();
+            clientsPhone.LastOrDefault();
+        
+            stopwatch.Stop();
+            stopwatch.Reset();   
+        }
+        string number = clientsPhone.LastOrDefault().Value.PhoneNumber;
+
+        for (int i = 0; i < 100; i++)
+        {
+            
+        
+            stopwatch.Start();
+            client = clientsPhone[number];
+            stopwatch.Stop();
+            stopwatch.Reset();
+        }
+        
     }
         
     public static void ContractUpdate(List<Employee> employees)

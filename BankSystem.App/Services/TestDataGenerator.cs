@@ -14,32 +14,41 @@ public class TestDataGenerator
     private Dictionary<string, Client> clientsPhone = new Dictionary<string, Client>();
     Faker faker = new Faker("ru");
 
-    public List<Client> GenerateClient()
+    public List<Client> ClientsList()
     {
         for (int i = 0; i < 1000; i++)
         {
-            clients.Add(new Client(faker.Name.FullName(), faker.Phone.PhoneNumber()+i.ToString(), "1ПР "+faker.Random.String2(8,8,"123456789"), faker.Random.Int(1,90)));
+            clients.Add(new Client{FullName = faker.Name.FullName(),
+                PhoneNumber = faker.Phone.PhoneNumber() + i.ToString(),
+                PasNumber = "1ПР " + faker.Random.String2(8, 8, "123456789"),
+                Age = faker.Random.Int(1, 90)});
         }
         return clients;
     }
 
-    public Dictionary<string,Client> GenerateDictionaryClient()
+    public Dictionary<string,Client> ClientsDictionary()
     {
         foreach (var client in clients)
         {
-            clientsPhone.Add(client.Number, client);
+            clientsPhone.Add(client.PhoneNumber, client);
         }
 
         return clientsPhone;
     }
 
-    public List<Employee> GenerateEmployee()
+    public List<Employee> EmployeesList()
     {
 
         for (int i = 0; i < 1000; i++)
         {
-            employees.Add(new Employee(faker.Name.FullName(), faker.Random.Bool(1), faker.Random.Int(1000, 10000),
-                faker.Phone.PhoneNumber() + i.ToString(), "1ПР " + faker.Random.String2(8, 8, "123456789")));
+            employees.Add(new Employee
+            {
+                FullName = faker.Name.FullName(),
+                PhoneNumber = faker.Phone.PhoneNumber() + i.ToString(),
+                PasNumber = "1ПР " + faker.Random.String2(8, 8, "123456789"),
+                Age = faker.Random.Int(1, 90)
+                
+            });
         }
 
         return employees;
