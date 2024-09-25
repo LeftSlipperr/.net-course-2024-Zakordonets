@@ -10,7 +10,7 @@ public class BankService
         int Salary = (40000 - 10000) / owners.Count;
         foreach (var owner in owners)
         {
-            owner.Sallary = Salary;
+            owner.Salary = Salary;
         }
     }
 
@@ -18,9 +18,8 @@ public class BankService
     {
         Employee employee = new Employee()
         {
-            FirstName = client.FirstName, 
-            SecondName = client.SecondName, 
-            Number = client.Number,
+            FullName = client.FullName, 
+            PhoneNumber = client.PhoneNumber,
             PasNumber = client.PasNumber
         };
 
