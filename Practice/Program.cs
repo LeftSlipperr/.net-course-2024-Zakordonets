@@ -12,7 +12,7 @@ public class Program
     public static void Main(string[] args) 
     {
         List<Client> clients = testDataGenerator.ClientsList();
-        Dictionary<string, Client> clientsPhone = testDataGenerator.ClientsDictionary() ;
+        Dictionary<Client, List<Account>> clientsAccount = testDataGenerator.ClientsDictionary() ;
 
         Client client = new Client
         {
@@ -24,15 +24,20 @@ public class Program
         Currency currency = new Currency(){CurrencyName = "Usd", Symbol = "$"};
         
         Employee employee = bankService.ClientToEmployee(client);
+        if(employee.IsOwner == true)
         bankService.CalculateOwnerSalary(employees);
         
         ContractUpdate(employees);
         CurrencyUpdate(currency);
 
         Random random = new Random();
+        
         string phoneToFind = clients[random.Next(clients.Count)].PhoneNumber;
+        Client clientToFind = clients[random.Next(clients.Count)];
         Stopwatch stopwatch = new Stopwatch();
+        
         Client foundClient;
+        List<Account> account;
 
         for (int i = 0; i < 100; i++)
         {
@@ -48,7 +53,7 @@ public class Program
         {
             stopwatch.Start();
             
-            foundClient = clientsPhone[phoneToFind];
+             account = clientsAccount[clientToFind];
             
             stopwatch.Stop();
             stopwatch.Reset();
@@ -63,19 +68,19 @@ public class Program
         {
             stopwatch.Start();
         
-            clientsPhone.LastOrDefault();
+            clients.LastOrDefault();
         
             stopwatch.Stop();
             stopwatch.Reset();   
         }
-        string number = clientsPhone.LastOrDefault().Value.PhoneNumber;
+        string number = clientsAccount.LastOrDefault().Key.PhoneNumber;
 
         for (int i = 0; i < 100; i++)
         {
             
         
             stopwatch.Start();
-            client = clientsPhone[number];
+            account = clientsAccount[clientToFind];
             stopwatch.Stop();
             stopwatch.Reset();
         }
