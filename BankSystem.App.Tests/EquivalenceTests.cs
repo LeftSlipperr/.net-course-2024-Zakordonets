@@ -12,7 +12,8 @@ public class EquivalenceTests
         List<Client> clients = testDataGenerator.ClientsList();
         Dictionary<Client, List<Account>> clientsAccont= testDataGenerator.ClientsDictionary();
         
-        Client client = new Client(){FullName = clients.LastOrDefault().FullName, PhoneNumber = clients.LastOrDefault().PhoneNumber, Age = clients.LastOrDefault().Age, PasNumber = clients.LastOrDefault().PasNumber};
+        Client client = new Client();
+        client = clients.LastOrDefault();
         List<Account> account = clientsAccont[client];
         
         Assert.Equal(account, clientsAccont[clients.LastOrDefault()]);

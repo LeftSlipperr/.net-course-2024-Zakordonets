@@ -19,6 +19,6 @@ public class Employee : Person
 
    public override int GetHashCode()
    {
-      return this.PasNumber.GetHashCode() + PhoneNumber.GetHashCode();
+      return this.PasNumber.GetHashCode();
    }
 }

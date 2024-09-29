@@ -16,6 +16,6 @@ public class Client : Person
 
     public override int GetHashCode()
     {
-        return this.PhoneNumber.GetHashCode() + PasNumber.GetHashCode();
+        return this.PasNumber.GetHashCode();
     }
 }
