@@ -12,7 +12,7 @@ public class EmployeeStorageTests
         List<Employee> employees = testDataGenerator.EmployeesList();
 
         [Fact]
-        public void AddEmployee_AddsEmployeeSuccessfully()
+        public void AddEmployeeAddsEmployeeSuccessfully()
         {
             foreach (var employee in employees)
             {
@@ -23,7 +23,7 @@ public class EmployeeStorageTests
         }
 
         [Fact]
-        public void FindYoungestEmployee_ReturnsCorrectEmployee()
+        public void GetYoungestEmployeeReturnsCorrectEmployee()
         {
             foreach (var employee in employees)
             {
@@ -37,7 +37,7 @@ public class EmployeeStorageTests
         }
 
         [Fact]
-        public void FindOldestEmployee_ReturnsCorrectEmployee()
+        public void GetOldestEmployeeReturnsCorrectClient()
         {
             foreach (var employee in employees)
             {
@@ -51,7 +51,7 @@ public class EmployeeStorageTests
         }
 
         [Fact]
-        public void CalculateAverageAge_ReturnsCorrectValue()
+        public void GetAverageAgeReturnsCorrectValue()
         {
             foreach (var employee in employees)
             {
