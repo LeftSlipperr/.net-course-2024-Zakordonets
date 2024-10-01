@@ -19,6 +19,7 @@ public class TestDataGenerator
 
     public List<Client> ClientsList()
     {
+        clients = new List<Client>();
         for (int i = 0; i < 1000; i++)
         {
             clients.Add(new Client{FullName = faker.Name.FullName(),
@@ -56,7 +57,7 @@ public class TestDataGenerator
 
     public List<Employee> EmployeesList()
     {
-
+        employees = new List<Employee>();
         for (int i = 0; i < 1000; i++)
         {
             employees.Add(new Employee
