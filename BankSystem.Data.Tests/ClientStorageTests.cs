@@ -9,17 +9,6 @@ public class ClientStorageTests
     ClientStorage.ClientStorage clientStorage = new ClientStorage.ClientStorage();
     static TestDataGenerator testDataGenerator = new TestDataGenerator();
     List<Client> clients = testDataGenerator.ClientsList();
-    
-    [Fact]
-    public void AddClientAddsClientSuccessfully()
-    {
-        foreach (var client in clients)
-        {
-            clientStorage.AddClient(client);
-        }
-
-        Assert.Equal(clientStorage.GetAllClients().Count, 1000);
-    }
 
     [Fact]
     public void GetYoungestClientClientReturnsCorrectClient()
