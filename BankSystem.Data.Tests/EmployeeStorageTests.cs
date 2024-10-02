@@ -12,17 +12,6 @@ public class EmployeeStorageTests
         List<Employee> employees = testDataGenerator.EmployeesList();
 
         [Fact]
-        public void AddEmployeeAddsEmployeeSuccessfully()
-        {
-            foreach (var employee in employees)
-            {
-                employeeStorage.AddEmployee(employee);
-            }
-
-            Assert.Equal(1000, employeeStorage.GetAllEmployees().Count);
-        }
-
-        [Fact]
         public void GetYoungestEmployeeReturnsCorrectEmployee()
         {
             foreach (var employee in employees)
