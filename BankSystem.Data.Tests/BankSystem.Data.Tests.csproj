@@ -1,21 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-
-        <IsPackable>false</IsPackable>
-        <IsTestProject>true</IsTestProject>
         <OutputType>Library</OutputType>
     </PropertyGroup>
 
     <ItemGroup>
-        <Using Include="Xunit"/>
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\BankSystem.App\BankSystem.App.csproj" />
+      <ProjectReference Include="..\BankSystem.Data\BankSystem.Data.csproj" />
     </ItemGroup>
 
     <ItemGroup>
