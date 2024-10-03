@@ -25,4 +25,9 @@ public class ClientStorage
     {
         return _clients.Average(c => c.Age);
     }
+
+    public List<Client> GetAllClients()
+    {
+        return new List<Client>(_clients);
+    }
 }

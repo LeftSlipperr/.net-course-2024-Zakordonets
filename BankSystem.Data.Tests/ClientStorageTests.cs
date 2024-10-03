@@ -11,6 +11,17 @@ public class ClientStorageTests
     List<Client> clients = testDataGenerator.ClientsList();
 
     [Fact]
+    public void AddClientAddsClientSuccessfuly()
+    {
+        foreach (var client in clients)
+        {
+            clientStorage.AddClient(client);
+        }
+        
+        Assert.Equal(1000, clientStorage.GetAllClients().Count());
+    }
+    
+    [Fact]
     public void GetYoungestClientClientReturnsCorrectClient()
     {
         foreach (var client in clients)

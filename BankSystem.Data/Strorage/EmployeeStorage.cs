@@ -25,4 +25,9 @@ public class EmployeeStorage
     {
         return _employees.Average(e => e.Age);
     }
+    
+    public List<Employee> GetAllEmployees()
+    {
+        return new List<Employee>(_employees);
+    }
 }
