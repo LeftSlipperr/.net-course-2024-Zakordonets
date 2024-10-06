@@ -74,7 +74,7 @@ public class ClientServiceTests
                 Currency = new Currency { CurrencyName = "EUR", Symbol = "€" }
             };
             
-            _clientService.AddAccountToClient(client.PasNumber, newAccount);
+            _clientService.AddAccountToClient(client, newAccount);
             
             var storedClient = _clientStorage.GetAllClients().FirstOrDefault(c => c.Key.PasNumber == client.PasNumber);
             Assert.Contains(storedClient.Value, a => a.Currency.CurrencyName == "EUR");
@@ -96,7 +96,7 @@ public class ClientServiceTests
                 Amount = 100,
                 Currency = new Currency { CurrencyName = "RUB", Symbol = "R" }
             };
-            _clientService.AddAccountToClient(client.PasNumber, oldAccount);
+            _clientService.AddAccountToClient(client, oldAccount);
 
             Account newAccount = new Account
             {
@@ -104,7 +104,7 @@ public class ClientServiceTests
                 Currency = new Currency { CurrencyName = "RUB", Symbol = "R" }
             };
             
-            _clientService.EditAccount(client.PasNumber, oldAccount, newAccount);
+            _clientService.EditAccount(client, newAccount);
             
             var storedClient = _clientStorage.GetAllClients().FirstOrDefault(c => c.Key.PasNumber == client.PasNumber);
             Account updatedAccount = storedClient.Value.FirstOrDefault(a => a.Currency.CurrencyName == "RUB");
@@ -135,7 +135,7 @@ public class ClientServiceTests
                 FullName = "Charlie Brown",
                 Age = 20,
                 PasNumber = "C12398745",
-                PhoneNumber = "5555555555"
+                PhoneNumber = "555"
             };
 
             _clientService.AddClient(client1);

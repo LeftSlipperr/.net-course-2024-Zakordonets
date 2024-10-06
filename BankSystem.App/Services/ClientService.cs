@@ -6,8 +6,6 @@ namespace BankSystem.App.Services;
 public class ClientService
 {
     private ClientStorage.ClientStorage _clientStorage;
-    private Dictionary<Client, List<Account>> _clientsAccount;
-        
     
     public ClientService(ClientStorage.ClientStorage clientStorage)
     {
@@ -35,48 +33,28 @@ public class ClientService
         _clientStorage.AddClient(client, accounts);    
     }
     
-    public void AddAccountToClient(string passportNumber, Account account)
+    public void AddAccountToClient(Client client, Account account)
     {
-        var client = _clientStorage.GetAllClients()
-            .FirstOrDefault(c => c.Key.PasNumber == passportNumber);
-        
-        if (client.Key == null)
+        if (client == null)
             throw new Exception("Клиента не существует");
 
-        if (client.Key.PasNumber == "")
+        if (client.PasNumber == "")
             throw new MissingPassportException("Клиент с таким паспортом не найден");
 
-        if (client.Value.Any(a => a.Currency.Equals(account.Currency)))
-            throw new Exception("У клиента уже есть счёт в этой валюте");
-
-        _clientStorage.AddNewAccount(client.Key, account);
+        _clientStorage.AddNewAccount(client, account);
     }
     
-    public void EditAccount(string passportNumber, Account oldAccount, Account newAccount)
+    public void EditAccount(Client client, Account newAccount)
     {
-        var client = _clientStorage.GetAllClients()
-            .FirstOrDefault(c => c.Key.PasNumber == passportNumber);
 
-        if (client.Key == null)
+        if (client == null)
             throw new MissingPassportException("Клиент с таким паспортом не найден");
-
-        Account accountToEdit = client.Value.FirstOrDefault(a => a.Currency.Equals(oldAccount.Currency));
-
-        if (accountToEdit == null)
-            throw new Exception("Счёт не найден");
         
-        _clientStorage.UpdateAccount(client.Key, newAccount);
+        _clientStorage.UpdateAccount(client, newAccount);
     }
     
-    public List<Client> GetFilteredClients(string fullName, string phoneNumber, string passportNumber, int? minAge, int? maxAge)
+    public List<Client> GetFilteredClients(string fullName, string phoneNumber, string pasportNumber, int? minAge, int? maxAge)
     {
-        return _clientStorage.GetAllClients().Keys
-            .Where(c => 
-                (string.IsNullOrWhiteSpace(fullName) || c.FullName.Contains(fullName)) &&
-                (string.IsNullOrWhiteSpace(phoneNumber) || c.PhoneNumber.Contains(phoneNumber)) &&
-                (string.IsNullOrWhiteSpace(passportNumber) || c.PasNumber.Contains(passportNumber)) &&
-                (!minAge.HasValue || c.Age >= minAge.Value) &&
-                (!maxAge.HasValue || c.Age <= maxAge.Value)
-            ).ToList();
+       return  _clientStorage.GetFilteredClients(fullName, phoneNumber, pasportNumber, minAge, maxAge);
     }
 }

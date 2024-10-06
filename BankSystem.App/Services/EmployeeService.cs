@@ -24,31 +24,19 @@ public class EmployeeService
             _employeeStorage.AddEmployee(employee);
         }
 
-        public void EditEmployee(string passportNumber, Employee updatedEmployee)
+        public void EditEmployee(Employee employee, Employee updatedEmployee)
         {
-            Employee employee = _employeeStorage.GetAllEmployees()
-                .FirstOrDefault(e => e.PasNumber == passportNumber);
-
             if (employee == null)
                 throw new Exception("Сотрудник не найден");
             
-            employee.FullName = updatedEmployee.FullName;
-            employee.Age = updatedEmployee.Age;
-            employee.Salary = updatedEmployee.Salary;
-            employee.PhoneNumber = updatedEmployee.PhoneNumber;
-            employee.Contract = updatedEmployee.Contract;
+            _employeeStorage.UpdateEmployee(employee, updatedEmployee);
+            
         }
 
-        public List<Employee> GetFilterEmployees(string fullName, string phoneNumber, string pasNumber, int? minAge, int? maxAge)
+        public List<Employee> GetFilterEmployees(string fullName, string phoneNumber, string pasNumber, int? minAge,
+            int? maxAge)
         {
-            return _employeeStorage.GetAllEmployees()
-                .Where(e => 
-                    (string.IsNullOrEmpty(fullName) || e.FullName.Contains(fullName)) &&
-                    (string.IsNullOrEmpty(phoneNumber) || e.PhoneNumber.Contains(phoneNumber)) &&
-                    (string.IsNullOrEmpty(pasNumber) || e.PasNumber.Contains(pasNumber)) &&
-                    (!minAge.HasValue || e.Age >= minAge.Value) &&
-                    (!maxAge.HasValue || e.Age <= maxAge.Value))
-                .ToList();
+            return _employeeStorage.GetFilterEmployees(fullName, phoneNumber, pasNumber, minAge, maxAge);
         }
 
         public Employee GetYoungestEmployee()

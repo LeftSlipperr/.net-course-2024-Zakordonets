@@ -19,7 +19,7 @@ public class ClientStorage
     public void UpdateAccount(Client client, Account account)
     {
         Account existingAccount = _clients[client].FirstOrDefault(a => a.Currency.Equals(account.Currency));
-    
+
         if (existingAccount != null)
         {
             existingAccount.Amount = account.Amount;
@@ -30,7 +30,18 @@ public class ClientStorage
             throw new Exception("Счет не найден");
         }
     }
-    
+
+    public List<Client> GetFilteredClients(string fullName, string phoneNumber, string passportNumber, int? minAge, int? maxAge)
+    {
+        return _clients.Keys.Where(c => 
+            (string.IsNullOrWhiteSpace(fullName) || c.FullName.Contains(fullName)) &&
+            (string.IsNullOrWhiteSpace(phoneNumber) || c.PhoneNumber.Contains(phoneNumber)) &&
+            (string.IsNullOrWhiteSpace(passportNumber) || c.PasNumber.Contains(passportNumber)) &&
+            (!minAge.HasValue || c.Age >= minAge.Value) &&
+            (!maxAge.HasValue || c.Age <= maxAge.Value)
+        ).ToList();
+    }
+
     public Client GetYoungestClient()
     {
         return _clients.OrderBy(c => c.Key.Age).FirstOrDefault().Key;
@@ -50,4 +61,5 @@ public class ClientStorage
     {
         return new Dictionary<Client, List<Account>>(_clients);
     }
+
 }

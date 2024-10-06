@@ -79,7 +79,7 @@ public class EmployeeServiceTests
                 Contract = "Full-Time"
             };
             
-            _employeeService.EditEmployee(employee.PasNumber, updatedEmployee);
+            _employeeService.EditEmployee(employee, updatedEmployee);
 
             var storedEmployee = _employeeStorage.GetAllEmployees()
                 .FirstOrDefault(e => e.PasNumber == employee.PasNumber);
