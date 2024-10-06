@@ -10,6 +10,27 @@ public class EmployeeStorage
     {
         _employees.Add(employee);
     }
+
+    public void UpdateEmployee(Employee employee, Employee updatedEmployee)
+    {
+        employee.FullName = updatedEmployee.FullName;
+        employee.Age = updatedEmployee.Age;
+        employee.Salary = updatedEmployee.Salary;
+        employee.PhoneNumber = updatedEmployee.PhoneNumber;
+        employee.Contract = updatedEmployee.Contract;
+    }
+    
+    public List<Employee> GetFilterEmployees(string fullName, string phoneNumber, string pasNumber, int? minAge, int? maxAge)
+    {
+        return _employees
+            .Where(e => 
+                (string.IsNullOrEmpty(fullName) || e.FullName.Contains(fullName)) &&
+                (string.IsNullOrEmpty(phoneNumber) || e.PhoneNumber.Contains(phoneNumber)) &&
+                (string.IsNullOrEmpty(pasNumber) || e.PasNumber.Contains(pasNumber)) &&
+                (!minAge.HasValue || e.Age >= minAge.Value) &&
+                (!maxAge.HasValue || e.Age <= maxAge.Value))
+            .ToList();
+    }
     
     public Employee GetYoungestEmployee()
     {
@@ -28,6 +49,6 @@ public class EmployeeStorage
     
     public List<Employee> GetAllEmployees()
     {
-        return new List<Employee>(_employees);
+        return _employees;
     }
 }

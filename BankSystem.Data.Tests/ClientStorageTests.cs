@@ -6,16 +6,17 @@ namespace BankSystem.Data.Tests;
 
 public class ClientStorageTests
 {
-    ClientStorage.ClientStorage clientStorage = new ClientStorage.ClientStorage();
-    static TestDataGenerator testDataGenerator = new TestDataGenerator();
-    List<Client> clients = testDataGenerator.ClientsList();
-
     [Fact]
     public void AddClientAddsClientSuccessfuly()
     {
-        foreach (var client in clients)
+        ClientStorage.ClientStorage clientStorage = new ClientStorage.ClientStorage();
+        TestDataGenerator testDataGenerator = new TestDataGenerator();
+        List<Client> clients = testDataGenerator.ClientsList();
+        Dictionary<Client, List<Account>> _clientsAccount= testDataGenerator.ClientsDictionary();
+        
+        foreach (var client in _clientsAccount)
         {
-            clientStorage.AddClient(client);
+            clientStorage.AddClient(client.Key, client.Value);
         }
         
         Assert.Equal(1000, clientStorage.GetAllClients().Count());
@@ -24,37 +25,52 @@ public class ClientStorageTests
     [Fact]
     public void GetYoungestClientClientReturnsCorrectClient()
     {
-        foreach (var client in clients)
+        ClientStorage.ClientStorage clientStorage = new ClientStorage.ClientStorage();
+        TestDataGenerator testDataGenerator = new TestDataGenerator();
+        List<Client> clients = testDataGenerator.ClientsList();
+        Dictionary<Client, List<Account>> _clientsAccount= testDataGenerator.ClientsDictionary();
+        
+        foreach (var client in _clientsAccount)
         {
-            clientStorage.AddClient(client);
+            clientStorage.AddClient(client.Key, client.Value);
         }
-        Client yongestClient = clients.OrderBy(c => c.Age).FirstOrDefault();
+        Client yongestClient = _clientsAccount.OrderBy(c => c.Key.Age).FirstOrDefault().Key;
         Client youngest = clientStorage.GetYoungestClient();
         
-        Assert.Equal(youngest.FullName, yongestClient.FullName);
+        Assert.Equal(youngest, yongestClient);
     }
 
     [Fact]
     public void GetOldestClientReturnsCorrectClient()
     {
-        foreach (var client in clients)
+        ClientStorage.ClientStorage clientStorage = new ClientStorage.ClientStorage();
+        TestDataGenerator testDataGenerator = new TestDataGenerator();
+        List<Client> clients = testDataGenerator.ClientsList();
+        Dictionary<Client, List<Account>> _clientsAccount= testDataGenerator.ClientsDictionary();
+        
+        foreach (var client in _clientsAccount)
         {
-            clientStorage.AddClient(client);
+            clientStorage.AddClient(client.Key, client.Value);
         }
-        Client oldestClient = clients.OrderByDescending(c => c.Age).FirstOrDefault();
+        Client oldestClient = _clientsAccount.OrderByDescending(c => c.Key.Age).FirstOrDefault().Key;
         Client oldest = clientStorage.GetOldestClient();
         
-        Assert.Equal(oldest.FullName, oldestClient.FullName);
+        Assert.Equal(oldest, oldestClient);
     }
 
     [Fact]
     public void GetAverageAgeReturnsCorrectValue()
     {
-        foreach (var client in clients)
+        ClientStorage.ClientStorage clientStorage = new ClientStorage.ClientStorage();
+        TestDataGenerator testDataGenerator = new TestDataGenerator();
+        List<Client> clients = testDataGenerator.ClientsList();
+        Dictionary<Client, List<Account>> _clientsAccount= testDataGenerator.ClientsDictionary();
+        
+        foreach (var client in _clientsAccount)
         {
-            clientStorage.AddClient(client);
+            clientStorage.AddClient(client.Key, client.Value);
         }
-        double avAgeClient = clients.Average(c => c.Age);
+        double avAgeClient = _clientsAccount.Average(c => c.Key.Age);
         double avgAge = clientStorage.GetAverageAge();
         
         Assert.Equal(avgAge, avAgeClient);

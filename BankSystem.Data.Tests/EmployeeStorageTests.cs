@@ -9,7 +9,7 @@ public class EmployeeStorageTests
 {
         EmployeeStorage employeeStorage = new EmployeeStorage();
         static TestDataGenerator testDataGenerator = new TestDataGenerator();
-        List<Employee> employees = testDataGenerator.EmployeesList();
+        private List<Employee> employees = testDataGenerator.EmployeesList();
 
         [Fact]
         public void AddEmployeeAddsEmployeeSuccessfully()
