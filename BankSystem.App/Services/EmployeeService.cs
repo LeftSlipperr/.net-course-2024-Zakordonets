@@ -1,14 +1,14 @@
+using BankSystem.App.Interfaces;
 using BankSystem.App.Services.Exceptions;
 using BankSystem.Models;
-using ClientStorage;
 
 namespace BankSystem.App.Services;
 
-public class EmployeeService
+public class EmployeeService 
 {
-    private EmployeeStorage _employeeStorage;
-
-        public EmployeeService(EmployeeStorage employeeStorage)
+        private IStorage<Employee, List<Employee>> _employeeStorage;
+    
+        public EmployeeService(IStorage<Employee, List<Employee>> employeeStorage)
         {
             _employeeStorage = employeeStorage;
         }
@@ -21,36 +21,29 @@ public class EmployeeService
             if (string.IsNullOrEmpty(employee.PasNumber))
                 throw new MissingPassportException("Сотрудник не имеет паспортных данных");
 
-            _employeeStorage.AddEmployee(employee);
+            _employeeStorage.Add(employee);
         }
 
-        public void EditEmployee(Employee employee, Employee updatedEmployee)
+        public void EditEmployee(Employee employee)
         {
             if (employee == null)
                 throw new Exception("Сотрудник не найден");
             
-            _employeeStorage.UpdateEmployee(employee, updatedEmployee);
+            _employeeStorage.Update(employee);
             
         }
 
-        public List<Employee> GetFilterEmployees(string fullName, string phoneNumber, string pasNumber, int? minAge,
-            int? maxAge)
+        public List<Employee> GetFilterEmployees(string fullName, string phoneNumber, string pasNumber, int? minAge, int? maxAge)
         {
-            return _employeeStorage.GetFilterEmployees(fullName, phoneNumber, pasNumber, minAge, maxAge);
+            return _employeeStorage.Get(e =>
+                (string.IsNullOrWhiteSpace(fullName) || e.FullName.Contains(fullName, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrWhiteSpace(phoneNumber) || e.PhoneNumber.Contains(phoneNumber)) &&
+                (string.IsNullOrWhiteSpace(pasNumber) || e.PasNumber.Contains(pasNumber, StringComparison.OrdinalIgnoreCase)));
         }
 
-        public Employee GetYoungestEmployee()
+        public void DeleteEmployee(Employee employee)
         {
-            return _employeeStorage.GetYoungestEmployee();
+            _employeeStorage.Delete(employee);
         }
 
-        public Employee GetOldestEmployee()
-        {
-            return _employeeStorage.GetOldestEmployee();
-        }
-
-        public double GetAverageAge()
-        {
-            return _employeeStorage.GetAverageAge();
-        }
 }

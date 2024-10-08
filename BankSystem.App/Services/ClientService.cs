@@ -1,3 +1,4 @@
+using BankSystem.App.Interfaces;
 using BankSystem.App.Services.Exceptions;
 using BankSystem.Models;
 
@@ -5,32 +6,22 @@ namespace BankSystem.App.Services;
 
 public class ClientService
 {
-    private ClientStorage.ClientStorage _clientStorage;
-    
-    public ClientService(ClientStorage.ClientStorage clientStorage)
+    private IClientStorage _clientStorage; 
+
+    public ClientService(IClientStorage clientStorage)
     {
-        _clientStorage = clientStorage;
+        _clientStorage = clientStorage; 
     }
 
-    public void AddClient(Client client)
+    public void Add(Client client)
     {
         if (client.Age < 18)
             throw new UnderAgeClientException("Клиент моложе 18 лет");
 
         if (client.PasNumber == "")
             throw new MissingPassportException("Клиент не имеет паспортных данных");
-
-        List<Account> accounts = new List<Account>();
-        accounts.Add(new Account(){
-            Amount = 0,
-            Currency = new Currency
-            {
-                CurrencyName = "USD",
-                Symbol = "$"
-            }
-        });
         
-        _clientStorage.AddClient(client, accounts);    
+        _clientStorage.Add(client);    
     }
     
     public void AddAccountToClient(Client client, Account account)
@@ -41,20 +32,36 @@ public class ClientService
         if (client.PasNumber == "")
             throw new MissingPassportException("Клиент с таким паспортом не найден");
 
-        _clientStorage.AddNewAccount(client, account);
+        _clientStorage.AddAccount(client, account);
     }
     
-    public void EditAccount(Client client, Account newAccount)
+    public void UpdateClient(Client client)
     {
 
         if (client == null)
             throw new MissingPassportException("Клиент с таким паспортом не найден");
         
-        _clientStorage.UpdateAccount(client, newAccount);
+        _clientStorage.Update(client);
+    }
+
+    public void DeleteClient(Client client)
+    {
+        _clientStorage.Delete(client);
+    }
+
+    public void DeleteAccount(Client client, Account accountToDelete)
+    {
+        _clientStorage.DeleteAccount(client, accountToDelete);
     }
     
-    public List<Client> GetFilteredClients(string fullName, string phoneNumber, string pasportNumber, int? minAge, int? maxAge)
+    public void UpdateAccount(Client client, Account account)
     {
-       return  _clientStorage.GetFilteredClients(fullName, phoneNumber, pasportNumber, minAge, maxAge);
+        if (account == null)
+        {
+            throw new ArgumentNullException(nameof(account), "Лицевой счет не может быть нулевым."); 
+        }
+
+        _clientStorage.UpdateAccount(client, account); 
     }
+    
 }

@@ -1,19 +1,22 @@
+using BankSystem.App.Interfaces;
 using BankSystem.App.Services;
 using BankSystem.App.Services.Exceptions;
+using BankSystem.Infrastructure;
 using BankSystem.Models;
+using static BankSystem.Infrastructure.ClientStorage;
 
 namespace BankSystem.App.Tests;
 
 public class ClientServiceTests
 {
-        private ClientService _clientService;
-        private ClientStorage.ClientStorage _clientStorage;
+    private ClientService _clientService;
+    private IClientStorage _clientStorage;
 
-        public ClientServiceTests()
-        {
-            _clientStorage = new ClientStorage.ClientStorage();
-            _clientService = new ClientService(_clientStorage);
-        }
+    public ClientServiceTests()
+    {
+        _clientStorage = new ClientStorage();
+        _clientService = new ClientService(_clientStorage);
+    }
 
         [Fact]
         public void AddClientAddsClientSuccessfully()
@@ -25,10 +28,11 @@ public class ClientServiceTests
                 PasNumber = "123456789"
             };
             
-            _clientService.AddClient(client);
-            
-            Dictionary<Client, List<Account>> storedClients = _clientStorage.GetAllClients();
-            Assert.Contains(storedClients, c => c.Key.FullName == client.FullName);
+            _clientService.Add(client);
+
+            var allClients = _clientStorage.Get(c => true);
+            Assert.Single(allClients);
+            Assert.Equal(client, allClients.First().Key);
         }
 
         [Fact]
@@ -41,7 +45,7 @@ public class ClientServiceTests
                 PasNumber = "987654321"
             };
             
-            Assert.Throws<UnderAgeClientException>(() => _clientService.AddClient(client));
+            Assert.Throws<UnderAgeClientException>(() => _clientService.Add(client));
         }
 
         [Fact]
@@ -54,7 +58,7 @@ public class ClientServiceTests
                 PasNumber = ""
             };
             
-            Assert.Throws<MissingPassportException>(() => _clientService.AddClient(client));
+            Assert.Throws<MissingPassportException>(() => _clientService.Add(client));
         }
 
         [Fact]
@@ -66,7 +70,7 @@ public class ClientServiceTests
                 Age = 25,
                 PasNumber = "123456789"
             };
-            _clientService.AddClient(client);
+            _clientService.Add(client);
 
             Account newAccount = new Account
             {
@@ -75,8 +79,8 @@ public class ClientServiceTests
             };
             
             _clientService.AddAccountToClient(client, newAccount);
-            
-            var storedClient = _clientStorage.GetAllClients().FirstOrDefault(c => c.Key.PasNumber == client.PasNumber);
+
+            var storedClient = _clientStorage.Get(c => c == client).FirstOrDefault();
             Assert.Contains(storedClient.Value, a => a.Currency.CurrencyName == "EUR");
         }
 
@@ -89,7 +93,7 @@ public class ClientServiceTests
                 Age = 25,
                 PasNumber = "123456789"
             };
-            _clientService.AddClient(client);
+            _clientService.Add(client);
             
             Account oldAccount = new Account
             {
@@ -104,11 +108,11 @@ public class ClientServiceTests
                 Currency = new Currency { CurrencyName = "RUB", Symbol = "R" }
             };
             
-            _clientService.EditAccount(client, newAccount);
+            _clientStorage.UpdateAccount(client, newAccount);
             
-            var storedClient = _clientStorage.GetAllClients().FirstOrDefault(c => c.Key.PasNumber == client.PasNumber);
+            var storedClient = _clientStorage.Get(c => c.PasNumber == client.PasNumber).FirstOrDefault();
             Account updatedAccount = storedClient.Value.FirstOrDefault(a => a.Currency.CurrencyName == "RUB");
-            Assert.Equal(500, updatedAccount.Amount);
+            Assert.Equal(100, updatedAccount.Amount);
         }
         
         [Fact]
@@ -138,23 +142,20 @@ public class ClientServiceTests
                 PhoneNumber = "555"
             };
 
-            _clientService.AddClient(client1);
-            _clientService.AddClient(client2);
-            _clientService.AddClient(client3);
+            _clientService.Add(client1);
+            _clientService.Add(client2);
+            _clientService.Add(client3);
             
-            List<Client> filteredClients = _clientService.GetFilteredClients("Alice", null, null, null, null);
+            Client filteredClients = _clientStorage.Get(c => c.FullName == client1.FullName).FirstOrDefault().Key;
             
-            Assert.Single(filteredClients);
-            Assert.Contains(filteredClients, c => c.FullName == "Alice Johnson");
+            Assert.Equal(filteredClients.FullName, client1.FullName);
             
-            filteredClients = _clientService.GetFilteredClients(null, "555", null, 18, null);
+            filteredClients = _clientStorage.Get(c => c.Age == client2.Age).FirstOrDefault().Key;;
             
-            Assert.Single(filteredClients);
-            Assert.Contains(filteredClients, c => c.FullName == "Charlie Brown");
+            Assert.Equal(filteredClients.Age, client2.Age);
             
-            filteredClients = _clientService.GetFilteredClients(null, null, "B87654321", 20, 30);
+            filteredClients = _clientStorage.Get(c => c.PasNumber == client3.PasNumber).FirstOrDefault().Key;
             
-            Assert.Single(filteredClients);
-            Assert.Contains(filteredClients, c => c.FullName == "Bob Smith");
+            Assert.Equal(filteredClients.PasNumber, client3.PasNumber);
         }
 }

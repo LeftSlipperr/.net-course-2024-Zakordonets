@@ -1,65 +1,89 @@
+using BankSystem.App.Interfaces;
 using BankSystem.Models;
 
-namespace ClientStorage;
+namespace BankSystem.Infrastructure;
 
-public class ClientStorage
+public class ClientStorage : IClientStorage
 {
-    private Dictionary<Client, List<Account>> _clients = new Dictionary<Client, List<Account>>();
+    private Dictionary<Client, List<Account>> _clientAccounts;
 
-    public void AddClient(Client client, List<Account> accounts)
+    public ClientStorage()
     {
-        _clients.Add(client, accounts);
+        _clientAccounts = new Dictionary<Client, List<Account>>();
+    }
+    
+    public Dictionary<Client, List<Account>> Get(Func<Client, bool> filter)
+    {
+        return _clientAccounts
+            .Where(kvp => filter(kvp.Key))
+            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+    }
+    public List<Client> Get(string fullName, string phoneNumber, string pasNumber, int? minAge, int? maxAge) 
+    {
+        return _clientAccounts.Keys
+            .Where(c => 
+                (string.IsNullOrEmpty(fullName) || c.FullName.Contains(fullName)) &&
+                (string.IsNullOrEmpty(phoneNumber) || c.PhoneNumber.Contains(phoneNumber)) &&
+                (string.IsNullOrEmpty(pasNumber) || c.PasNumber.Contains(pasNumber)) &&
+                (!minAge.HasValue || c.Age >= minAge.Value) &&
+                (!maxAge.HasValue || c.Age <= maxAge.Value))
+            .ToList();
+    }
+    
+    
+    
+    public void Add(Client client)
+    {
+        Account defaultAccount = (new Account(){
+            Amount = 0,
+            Currency = new Currency
+            {
+                CurrencyName = "USD",
+                Symbol = "$"
+            }
+        });
+
+        _clientAccounts[client] = new List<Account> { defaultAccount };
+    }
+    
+    public void Update(Client client)
+    {
+        Client newClient = _clientAccounts.Keys
+            .FirstOrDefault(c => c.PasNumber == client.PasNumber);
+
+        client.FullName = newClient.FullName;
+        client.Age = newClient.Age;
+        client.PasNumber = client.PasNumber;
+        client.PhoneNumber = client.PhoneNumber;
     }
 
-    public void AddNewAccount(Client client, Account account)
+    public void Delete(Client client)
     {
-        _clients[client].Add(account);
+        _clientAccounts.Remove(client);
     }
 
-    public void UpdateAccount(Client client, Account account)
+    public void AddAccount(Client client, Account newAccount)
     {
-        Account existingAccount = _clients[client].FirstOrDefault(a => a.Currency.Equals(account.Currency));
-
-        if (existingAccount != null)
-        {
-            existingAccount.Amount = account.Amount;
-            existingAccount.Currency = account.Currency;
-        }
-        else
-        {
-            throw new Exception("Счет не найден");
-        }
+        _clientAccounts[client].Add(newAccount);
     }
 
-    public List<Client> GetFilteredClients(string fullName, string phoneNumber, string passportNumber, int? minAge, int? maxAge)
+    public void UpdateAccount(Client client, Account newAccount)
     {
-        return _clients.Keys.Where(c => 
-            (string.IsNullOrWhiteSpace(fullName) || c.FullName.Contains(fullName)) &&
-            (string.IsNullOrWhiteSpace(phoneNumber) || c.PhoneNumber.Contains(phoneNumber)) &&
-            (string.IsNullOrWhiteSpace(passportNumber) || c.PasNumber.Contains(passportNumber)) &&
-            (!minAge.HasValue || c.Age >= minAge.Value) &&
-            (!maxAge.HasValue || c.Age <= maxAge.Value)
-        ).ToList();
+        _clientAccounts[client].Add(newAccount);
     }
 
-    public Client GetYoungestClient()
+    public void DeleteAccount(Client client, Account accountToDelete)
     {
-        return _clients.OrderBy(c => c.Key.Age).FirstOrDefault().Key;
+        _clientAccounts[client].Remove(accountToDelete);
+    }
+    
+    public List<Client> GetAllClients()
+    {
+        return _clientAccounts.Keys.ToList();
     }
 
-    public Client GetOldestClient()
+    public List<Account> GetClientAccounts(Client client)
     {
-        return _clients.OrderByDescending(c => c.Key.Age).FirstOrDefault().Key;
+        return _clientAccounts.TryGetValue(client, out var accounts) ? accounts : new List<Account>();
     }
-
-    public double GetAverageAge()
-    {
-        return _clients.Average(c => c.Key.Age);
-    }
-
-    public Dictionary<Client, List<Account>> GetAllClients()
-    {
-        return new Dictionary<Client, List<Account>>(_clients);
-    }
-
 }

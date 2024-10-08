@@ -1,23 +1,26 @@
+using BankSystem.App.Interfaces;
 using BankSystem.App.Services;
 using BankSystem.App.Services.Exceptions;
+using BankSystem.Infrastructure;
 using BankSystem.Models;
-using ClientStorage;
 
 namespace BankSystem.App.Tests;
 
 public class EmployeeServiceTests
 {
-        private EmployeeService _employeeService;
-        private EmployeeStorage _employeeStorage;
+        private readonly IStorage<Employee, List<Employee>> _employeeStorage;
+        private readonly EmployeeService _employeeService;
+        private readonly TestDataGenerator _dataGenerator;
 
         public EmployeeServiceTests()
         {
             _employeeStorage = new EmployeeStorage();
             _employeeService = new EmployeeService(_employeeStorage);
+            _dataGenerator = new TestDataGenerator();
         }
 
         [Fact]
-        public void AddEmployee_AddsEmployeeSuccessfully()
+        public void AddEmployeeAddsEmployeeSuccessfully()
         {
             Employee employee = new Employee
             {
@@ -28,12 +31,12 @@ public class EmployeeServiceTests
             
             _employeeService.AddEmployee(employee);
             
-            List<Employee> employees = _employeeStorage.GetAllEmployees();
+            List<Employee> employees = _employeeStorage.Get(e => e.FullName == employee.FullName);
             Assert.Contains(employees, e => e.FullName == employee.FullName);
         }
 
         [Fact]
-        public void AddEmployee_ThrowsUnderAgeException()
+        public void AddEmployeeThrowsUnderAgeException()
         {
             Employee employee = new Employee
             {
@@ -46,7 +49,7 @@ public class EmployeeServiceTests
         }
 
         [Fact]
-        public void AddEmployee_ThrowsMissingPassportException()
+        public void AddEmployeeThrowsMissingPassportException()
         {
             Employee employee = new Employee
             {
@@ -59,7 +62,7 @@ public class EmployeeServiceTests
         }
 
         [Fact]
-        public void EditEmployee_UpdatesEmployeeSuccessfully()
+        public void EditEmployeeUpdatesEmployeeSuccessfully()
         {
             Employee employee = new Employee
             {
@@ -74,18 +77,17 @@ public class EmployeeServiceTests
             {
                 FullName = "John Bobson",
                 Age = 35,
-                Salary = 50000,
+                PasNumber = "1234567",
                 PhoneNumber = "123-456-7890",
                 Contract = "Full-Time"
             };
             
-            _employeeService.EditEmployee(employee, updatedEmployee);
+            _employeeService.EditEmployee(updatedEmployee);
 
-            var storedEmployee = _employeeStorage.GetAllEmployees()
+            var storedEmployee = _employeeStorage.Get(e => e.FullName == updatedEmployee.FullName)
                 .FirstOrDefault(e => e.PasNumber == employee.PasNumber);
 
             Assert.Equal(35, storedEmployee.Age);
-            Assert.Equal(50000, storedEmployee.Salary);
             Assert.Equal("123-456-7890", storedEmployee.PhoneNumber);
             Assert.Equal("Full-Time", storedEmployee.Contract);
         }
