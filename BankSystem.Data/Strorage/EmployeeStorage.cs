@@ -1,52 +1,46 @@
+using BankSystem.App.Interfaces;
 using BankSystem.Models;
 
-namespace ClientStorage;
+namespace BankSystem.Infrastructure;
 
-public class EmployeeStorage
+public class EmployeeStorage : IStorage<Employee, List<Employee>>
 {
-    private List<Employee> _employees = new List<Employee>();
+    private List<Employee> _employees;
     
-    public void AddEmployee(Employee employee)
+    public EmployeeStorage()
+    {
+        _employees = new List<Employee>();
+    }
+    
+    public List<Employee> Get(Func<Employee, bool> filter)
+    {
+        return _employees.Where(filter).ToList();
+    }
+
+    public void Add(Employee employee)
     {
         _employees.Add(employee);
     }
 
-    public void UpdateEmployee(Employee employee, Employee updatedEmployee)
+    public void Update(Employee employee)
     {
-        employee.FullName = updatedEmployee.FullName;
-        employee.Age = updatedEmployee.Age;
-        employee.Salary = updatedEmployee.Salary;
-        employee.PhoneNumber = updatedEmployee.PhoneNumber;
-        employee.Contract = updatedEmployee.Contract;
+        var newEmployee = _employees
+            .FirstOrDefault(e => e.PasNumber == employee.PasNumber);
+
+        newEmployee.FullName = employee.FullName;
+        newEmployee.Age = employee.Age;
+        newEmployee.PasNumber = employee.PasNumber;
+        newEmployee.PhoneNumber = employee.PhoneNumber;
+        newEmployee.Contract = employee.Contract;
+        newEmployee.Salary = employee.Salary;
+        newEmployee.IsOwner = employee.IsOwner;
     }
-    
-    public List<Employee> GetFilterEmployees(string fullName, string phoneNumber, string pasNumber, int? minAge, int? maxAge)
+
+    public void Delete(Employee employee)
     {
-        return _employees
-            .Where(e => 
-                (string.IsNullOrEmpty(fullName) || e.FullName.Contains(fullName)) &&
-                (string.IsNullOrEmpty(phoneNumber) || e.PhoneNumber.Contains(phoneNumber)) &&
-                (string.IsNullOrEmpty(pasNumber) || e.PasNumber.Contains(pasNumber)) &&
-                (!minAge.HasValue || e.Age >= minAge.Value) &&
-                (!maxAge.HasValue || e.Age <= maxAge.Value))
-            .ToList();
+        _employees.Remove(employee);
     }
-    
-    public Employee GetYoungestEmployee()
-    {
-        return _employees.OrderBy(e => e.Age).FirstOrDefault();
-    }
-    
-    public Employee GetOldestEmployee()
-    {
-        return _employees.OrderByDescending(e => e.Age).FirstOrDefault();
-    }
-    
-    public double GetAverageAge()
-    {
-        return _employees.Average(e => e.Age);
-    }
-    
+
     public List<Employee> GetAllEmployees()
     {
         return _employees;
