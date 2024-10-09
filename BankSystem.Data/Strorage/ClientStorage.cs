@@ -18,20 +18,7 @@ public class ClientStorage : IClientStorage
             .Where(kvp => filter(kvp.Key))
             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
     }
-    public List<Client> Get(string fullName, string phoneNumber, string pasNumber, int? minAge, int? maxAge) 
-    {
-        return _clientAccounts.Keys
-            .Where(c => 
-                (string.IsNullOrEmpty(fullName) || c.FullName.Contains(fullName)) &&
-                (string.IsNullOrEmpty(phoneNumber) || c.PhoneNumber.Contains(phoneNumber)) &&
-                (string.IsNullOrEmpty(pasNumber) || c.PasNumber.Contains(pasNumber)) &&
-                (!minAge.HasValue || c.Age >= minAge.Value) &&
-                (!maxAge.HasValue || c.Age <= maxAge.Value))
-            .ToList();
-    }
-    
-    
-    
+        
     public void Add(Client client)
     {
         Account defaultAccount = (new Account(){
@@ -75,15 +62,5 @@ public class ClientStorage : IClientStorage
     public void DeleteAccount(Client client, Account accountToDelete)
     {
         _clientAccounts[client].Remove(accountToDelete);
-    }
-    
-    public List<Client> GetAllClients()
-    {
-        return _clientAccounts.Keys.ToList();
-    }
-
-    public List<Account> GetClientAccounts(Client client)
-    {
-        return _clientAccounts.TryGetValue(client, out var accounts) ? accounts : new List<Account>();
     }
 }

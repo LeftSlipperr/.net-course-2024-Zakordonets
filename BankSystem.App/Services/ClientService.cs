@@ -13,6 +13,11 @@ public class ClientService
         _clientStorage = clientStorage; 
     }
 
+    public Dictionary<Client, List<Account>> Get(Func<Client, bool> filter)
+    {
+        return _clientStorage.Get(filter);
+    }
+    
     public void Add(Client client)
     {
         if (client.Age < 18)
@@ -64,4 +69,43 @@ public class ClientService
         _clientStorage.UpdateAccount(client, account); 
     }
     
+    public bool IsClientAdded(Client client)
+    {
+        try
+        {
+            _clientStorage.Add(client);
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+        return true;
+    }
+    
+    public bool IsClientUpdated(string pasNumber, string updatedFullName)
+    {
+        var client = _clientStorage.Get(c => c.PasNumber == pasNumber).FirstOrDefault();
+
+        if (client.Key == null)
+        {
+            return false;
+        }
+        
+        return client.Key.FullName == updatedFullName;
+    }
+
+    public bool IsClientDeleted(string pasNumber)
+    {
+        var client = _clientStorage.Get(c => c.PasNumber == pasNumber).FirstOrDefault();
+        return client.Key == null;
+    }
+    
+    public bool DoesClientHaveAccount(Client client, Account account)
+    {
+        var clientAccounts = _clientStorage.Get(c => c.PasNumber == client.PasNumber);
+        var storedAccounts = clientAccounts[client];
+        return storedAccounts.Any(a => a.Equals(account));
+    }
+
+
 }
