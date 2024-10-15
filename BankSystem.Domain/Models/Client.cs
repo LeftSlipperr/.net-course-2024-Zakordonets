@@ -4,9 +4,6 @@ public class Client : Person
 {
     public string PhoneNumber { get; set; }
     public string PasNumber { get; set; }
-    public int AccountNumber { get; set; }
-    public decimal Balance { get; set; }
-    public ICollection<Account> Accounts { get; set; }
 
    public override bool Equals(object obj)
     {

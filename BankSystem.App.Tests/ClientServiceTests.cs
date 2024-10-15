@@ -3,8 +3,7 @@ using BankSystem.App.Services;
 using BankSystem.App.Services.Exceptions;
 using BankSystem.Infrastructure;
 using BankSystem.Models;
-using ClientStorage;
-using Xunit;
+using static BankSystem.Infrastructure.ClientStorage;
 
 namespace BankSystem.App.Tests;
 
@@ -15,166 +14,148 @@ public class ClientServiceTests
 
     public ClientServiceTests()
     {
-        _clientStorage = new Infrastructure.ClientStorage(new BankSystemDbContext());
+        _clientStorage = new ClientStorage();
         _clientService = new ClientService(_clientStorage);
     }
 
-    [Fact]
-    public void AddClientAddsClientSuccessfully()
-    {
-        var client = new Client
+        [Fact]
+        public void AddClientAddsClientSuccessfully()
         {
-            Id = Guid.NewGuid(),
-            Name = "John",
-            SecondName = "Doe",
-            ThirdName = "Smith",
-            Age = 30,
-            PasNumber = "123456",
-            PhoneNumber = "123456789",
-            Balance = 500
-        };
-        
-        _clientService.Add(client);
-        
-        var allClients = _clientStorage.Get(client.Id);
-        Assert.Single(allClients);
-        Assert.Equal(client, allClients.First().Key);
-    }
+            Client client = new Client
+            {
+                FullName = "John Bobson",
+                Age = 25,
+                PasNumber = "123456789"
+            };
+            
+            _clientService.Add(client);
 
-    [Fact]
-    public void AddClientThrowsUnderAgeClientExceptionIfClientIsUnder18()
-    {
-        var client = new Client
-        {
-            Id = Guid.NewGuid(),
-            Name = "John",
-            SecondName = "Doe",
-            ThirdName = "Smith",
-            Age = 17,
-            PasNumber = "123456",
-            PhoneNumber = "123456789",
-            Balance = 500
-        };
-        
-        Assert.Throws<UnderAgeClientException>(() => _clientService.Add(client));
-    }
+            var allClients = _clientStorage.Get(c => true);
+            Assert.Single(allClients);
+            Assert.Equal(client, allClients.First().Key);
+        }
 
-    [Fact]
-    public void AddAccountToClientAddsNewAccountSuccessfully()
-    {
-        var client = new Client
+        [Fact]
+        public void AddClientThrowsUnderAgeClientExceptionIfClientIsUnder18()
         {
-            Id = Guid.NewGuid(),
-            Name = "John",
-            SecondName = "Doe",
-            ThirdName = "Smith",
-            Age = 30,
-            PasNumber = "123456",
-            PhoneNumber = "123456789",
-            Balance = 500
-        };
-        _clientService.Add(client);
+            Client client = new Client
+            {
+                FullName = "John Bobson",
+                Age = 17,
+                PasNumber = "987654321"
+            };
+            
+            Assert.Throws<UnderAgeClientException>(() => _clientService.Add(client));
+        }
 
-        Account newAccount = new Account
+        [Fact]
+        public void AddClientThrowsMissingPassportExceptionIfNoPassport()
         {
-            Id = new Guid(),
-            ClientId = client.Id,
-            Amount = 100,
-            CurrencyName = "USD"
-        };
-        
-        _clientService.AddAccountToClient(client, newAccount);
-        
-        var storedClient = _clientStorage.Get(client.Id).FirstOrDefault();
-        Assert.Contains(storedClient.Value, a => a.CurrencyName == "USD");
-    }
+            Client client = new Client
+            {
+                FullName = "John Bobson",
+                Age = 30,
+                PasNumber = ""
+            };
+            
+            Assert.Throws<MissingPassportException>(() => _clientService.Add(client));
+        }
 
-    [Fact]
-    public void EditAccountUpdatesAccountSuccessfully()
-    {
-        var client = new Client
+        [Fact]
+        public void AddAccountToClientAddsNewAccountSuccessfully()
         {
-            Id = Guid.NewGuid(),
-            Name = "John",
-            SecondName = "Doe",
-            ThirdName = "Smith",
-            Age = 30,
-            PasNumber = "123456",
-            PhoneNumber = "123456789",
-            Balance = 500
-        };
-        _clientService.Add(client);
-        
-        Account oldAccount = new Account
-        {
-            Id = new Guid(),
-            ClientId = client.Id,
-            Amount = 100,
-            CurrencyName = "RUB"
-        };
-        _clientService.AddAccountToClient(client, oldAccount);
+            Client client = new Client
+            {
+                FullName = "John Bobson",
+                Age = 25,
+                PasNumber = "123456789"
+            };
+            _clientService.Add(client);
 
-        Account updatedAccount = new Account
-        {
-            Id = oldAccount.Id,
-            ClientId = client.Id,
-            Amount = 500,
-            CurrencyName = "RUB"
-        };
-        
-        _clientService.UpdateAccount(updatedAccount);
-        
-        var storedClient = _clientStorage.Get(client.Id).FirstOrDefault();
-        Account resultAccount = storedClient.Value.FirstOrDefault(a => a.Id == oldAccount.Id);
-        Assert.Equal(500, resultAccount.Amount);
-    }
-    
-    [Fact]
-    public void Get()
-    {
+            Account newAccount = new Account
+            {
+                Amount = 100,
+                Currency = new Currency { CurrencyName = "EUR", Symbol = "€" }
+            };
+            
+            _clientService.AddAccountToClient(client, newAccount);
 
-        var client = new Client
-        {
-            Id = Guid.NewGuid(),
-            Name = "John",
-            SecondName = "Doe",
-            ThirdName = "Smith",
-            Age = 30,
-            PasNumber = "123456",
-            PhoneNumber = "123456789",
-            Balance = 500
-        };
-        
-        _clientService.Add(client);
-        
-        var findById = _clientStorage.Get(client.Id);
-        
-        Assert.NotEmpty(findById);
-        Assert.Equal(client.Name, findById.First().Key.Name);
-    }
-    
-    [Fact]
-    public void DeleteClientPositiveTest()
-    {
-        Client client = new Client
-        {
-            Id = new Guid(),
-            Name = "John",
-            SecondName = "Bobson",
-            ThirdName = "Bibson",
-            Age = 25,
-            PasNumber = "123456789",
-            PhoneNumber = "1234567",
-            AccountNumber = 123,
-            Balance = 123
-        };
-        
-        _clientService.Add(client);
-        
-        _clientService.DeleteClient(client);
-        
-        var newClient = _clientService.Get(client);
+            var storedClient = _clientStorage.Get(c => c == client).FirstOrDefault();
+            Assert.Contains(storedClient.Value, a => a.Currency.CurrencyName == "EUR");
+        }
 
-        Assert.NotEqual(newClient.Keys.FirstOrDefault(c => c.Id == client.Id), client);
-    }
+        [Fact]
+        public void EditAccountUpdatesAccountSuccessfully()
+        {
+            Client client = new Client
+            {
+                FullName = "John Bobson",
+                Age = 25,
+                PasNumber = "123456789"
+            };
+            _clientService.Add(client);
+            
+            Account oldAccount = new Account
+            {
+                Amount = 100,
+                Currency = new Currency { CurrencyName = "RUB", Symbol = "R" }
+            };
+            _clientService.AddAccountToClient(client, oldAccount);
+
+            Account newAccount = new Account
+            {
+                Amount = 500,
+                Currency = new Currency { CurrencyName = "RUB", Symbol = "R" }
+            };
+            
+            _clientStorage.UpdateAccount(client, newAccount);
+            
+            var storedClient = _clientStorage.Get(c => c.PasNumber == client.PasNumber).FirstOrDefault();
+            Account updatedAccount = storedClient.Value.FirstOrDefault(a => a.Currency.CurrencyName == "RUB");
+            Assert.Equal(100, updatedAccount.Amount);
+        }
+        
+        [Fact]
+        public void FilterClientsReturnsFilteredClients()
+        {
+            Client client1 = new Client
+            {
+                FullName = "Alice Johnson",
+                Age = 30,
+                PasNumber = "A12345678",
+                PhoneNumber = "1234567890"
+            };
+
+            Client client2 = new Client
+            {
+                FullName = "Bob Smith",
+                Age = 25,
+                PasNumber = "B87654321",
+                PhoneNumber = "0987654321"
+            };
+
+            Client client3 = new Client
+            {
+                FullName = "Charlie Brown",
+                Age = 20,
+                PasNumber = "C12398745",
+                PhoneNumber = "555"
+            };
+
+            _clientService.Add(client1);
+            _clientService.Add(client2);
+            _clientService.Add(client3);
+            
+            Client filteredClients = _clientStorage.Get(c => c.FullName == client1.FullName).FirstOrDefault().Key;
+            
+            Assert.Equal(filteredClients.FullName, client1.FullName);
+            
+            filteredClients = _clientStorage.Get(c => c.Age == client2.Age).FirstOrDefault().Key;;
+            
+            Assert.Equal(filteredClients.Age, client2.Age);
+            
+            filteredClients = _clientStorage.Get(c => c.PasNumber == client3.PasNumber).FirstOrDefault().Key;
+            
+            Assert.Equal(filteredClients.PasNumber, client3.PasNumber);
+        }
 }

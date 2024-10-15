@@ -1,7 +1,6 @@
 using BankSystem.App.Services;
 using BankSystem.Models;
 using BankSystem.Infrastructure;
-using ClientStorage;
 using Xunit;
 
 namespace BankSystem.Data.Tests;
@@ -15,101 +14,54 @@ public class EmployeeStorageTests
 
         public EmployeeStorageTests()
         {
-            _employeeStorage = new EmployeeStorage(new BankSystemDbContext());
+            _employeeStorage = new EmployeeStorage();
             _dataGenerator = new TestDataGenerator();
         }   
 
         [Fact]
         public void AddEmployeeAddsEmployeeSuccessfully()
         {
-            Employee employee = new Employee()
+            foreach (var employee in employees)
             {
-                Id = new Guid(),
-                Name = "John",
-                SecondName = "Bobson",
-                ThirdName = "Bibson",
-                Age = 25,
-                PasNumber = "123456789",
-                PhoneNumber = "1234567",
-                IsOwner = false,
-                Contract = "Контракт заключен",
-                Salary = 20000
-            };
-            
-            _employeeStorage.Add(employee);
+                _employeeStorage.Add(employee);
+            }
 
-            employees = _employeeStorage.Get(employee.Id);
-            var myEmployee = employees.FirstOrDefault(e => e.Id == employee.Id); 
-
-            Assert.Equal(myEmployee.Id, employee.Id);
+            Assert.Equal(1000, _employeeStorage.GetAllEmployees().Count);
         }
         
-    [Fact]
-    public void UpdateEmployeetPositiveTest()
+         [Fact]
+    public void UpdateClientPositiveTest()
     {
-        Employee employee = new Employee()
-        {
-            Id = new Guid(),
-            Name = "John",
-            SecondName = "Bobson",
-            ThirdName = "Bibson",
-            Age = 25,
-            PasNumber = "123456789",
-            PhoneNumber = "1234567",
-            IsOwner = false,
-            Contract = "Контракт заключен",
-            Salary = 20000
-        };
+        Employee employee = new Employee();
+        employee.FullName = "John Bobson";
+        employee.PasNumber = "123";
         
         _employeeStorage.Add(employee);
         
-        Employee employee2 = new Employee()
-        {
-            Id = employee.Id,
-            Name = "Updated",
-            SecondName = "Bobson",
-            ThirdName = "Bibson",
-            Age = 25,
-            PasNumber = "123456789",
-            PhoneNumber = "1234567",
-            IsOwner = false,
-            Contract = "Контракт заключен",
-            Salary = 20000
-        };
+        var updatedEmployee = new Employee();
+        updatedEmployee.PasNumber = employee.PasNumber;
+        updatedEmployee.FullName = "updatedFullName";
+        updatedEmployee.PhoneNumber = employee.PhoneNumber;
         
-        _employeeStorage.Update(employee2);
+        _employeeStorage.Update(updatedEmployee);
         
-        employees = _employeeStorage.Get(employee.Id);
-        var myEmployee = employees.FirstOrDefault(e => e.Id == employee.Id); 
-
-        Assert.Equal(myEmployee.Id, employee2.Id);
+        employees = _employeeStorage.GetAllEmployees();
+        Assert.Contains(updatedEmployee, employees);
     }
     
     
     [Fact]
-    public void DeleteEmployeePositiveTest()
+    public void DeleteClientPositiveTest()
     {
-        Employee employee = new Employee()
-        {
-            Id = new Guid(),
-            Name = "John",
-            SecondName = "Bobson",
-            ThirdName = "Bibson",
-            Age = 25,
-            PasNumber = "123456789",
-            PhoneNumber = "1234567",
-            IsOwner = false,
-            Contract = "Контракт заключен",
-            Salary = 20000
-        };
+        Employee employee = new Employee();
+        employee.FullName = "John Bobson";
+        employee.PasNumber = "123";
         
         _employeeStorage.Add(employee);
         
-        _employeeStorage.Delete(employee.Id);
+        _employeeStorage.Delete(employee);
         
-        var newEmployee = _employeeStorage.Get(employee.Id);
-        var deletedEmployee = newEmployee.FirstOrDefault();
-        
-        Assert.Null(deletedEmployee);
+        employees = _employeeStorage.GetAllEmployees();
+        Assert.DoesNotContain(employee, employees);
     }
 }

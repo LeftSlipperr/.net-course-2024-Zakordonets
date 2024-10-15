@@ -2,11 +2,11 @@ using BankSystem.App.Interfaces;
 using BankSystem.App.Services.Exceptions;
 using BankSystem.Models;
 
-namespace BankSystem.App.Services
+namespace BankSystem.App.Services;
+
+public class EmployeeService 
 {
-    public class EmployeeService 
-    {
-        private readonly IStorage<Employee, List<Employee>> _employeeStorage;
+        private IStorage<Employee, List<Employee>> _employeeStorage;
     
         public EmployeeService(IStorage<Employee, List<Employee>> employeeStorage)
         {
@@ -27,23 +27,23 @@ namespace BankSystem.App.Services
         public void EditEmployee(Employee employee)
         {
             if (employee == null)
-                throw new ArgumentNullException(nameof(employee), "Сотрудник не найден");
+                throw new Exception("Сотрудник не найден");
             
-            var existingEmployee = _employeeStorage.Get(employee.Id).FirstOrDefault();
-            if (existingEmployee == null)
-                throw new KeyNotFoundException("Сотрудник не найден");
-
             _employeeStorage.Update(employee);
+            
         }
 
-        public List<Employee> Get(Employee employee)
+        public List<Employee> GetFilterEmployees(string fullName, string phoneNumber, string pasNumber, int? minAge, int? maxAge)
         {
-            return _employeeStorage.Get(employee.Id);
+            return _employeeStorage.Get(e =>
+                (string.IsNullOrWhiteSpace(fullName) || e.FullName.Contains(fullName, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrWhiteSpace(phoneNumber) || e.PhoneNumber.Contains(phoneNumber)) &&
+                (string.IsNullOrWhiteSpace(pasNumber) || e.PasNumber.Contains(pasNumber, StringComparison.OrdinalIgnoreCase)));
         }
 
         public void DeleteEmployee(Employee employee)
         {
-            _employeeStorage.Delete(employee.Id);
+            _employeeStorage.Delete(employee);
         }
-    }
+
 }

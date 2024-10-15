@@ -17,8 +17,7 @@ public class BankServiceTests
     {
         Client client = new Client
         {
-            Name = "John",
-            SecondName = "Bobson",
+            FullName = "John Bobson",
             Bonus = 100
         };
         
@@ -32,8 +31,7 @@ public class BankServiceTests
     {
         Employee employee = new Employee
         {
-            Name = "Jane",
-            SecondName = "Doe", 
+            FullName = "Jane Doe",
             Bonus = 200
         };
 
@@ -47,8 +45,7 @@ public class BankServiceTests
     {
         Client client = new Client
         {
-            Name = "John",
-            SecondName = "Doe"
+            FullName = "John Doe"
         };
 
         _bankService.AddToBlackList(client);
@@ -61,8 +58,7 @@ public class BankServiceTests
     {
         Client client = new Client
         {
-            Name = "John",
-            SecondName = "Doe"
+            FullName = "John Doe"
         };
         _bankService.AddToBlackList(client);
         
@@ -75,7 +71,7 @@ public class BankServiceTests
     {
         Client client = new Client
         {
-            Name = "John Doe"
+            FullName = "John Doe"
         };
         _bankService.AddToBlackList(client);
 
@@ -89,8 +85,7 @@ public class BankServiceTests
     {
         Client client = new Client
         {
-            Name = "John",
-            SecondName = "Doe"
+            FullName = "John Doe"
         };
 
         bool isInBlackList = _bankService.IsPersonInBlackList(client);

@@ -1,70 +1,48 @@
 using BankSystem.App.Interfaces;
 using BankSystem.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using ClientStorage;
-using Microsoft.EntityFrameworkCore;
 
-namespace BankSystem.Infrastructure
+namespace BankSystem.Infrastructure;
+
+public class EmployeeStorage : IStorage<Employee, List<Employee>>
 {
-    public class EmployeeStorage : IStorage<Employee, List<Employee>>
+    private List<Employee> _employees;
+    
+    public EmployeeStorage()
     {
-        private readonly BankSystemDbContext _bankSystemDbContext;
+        _employees = new List<Employee>();
+    }
+    
+    public List<Employee> Get(Func<Employee, bool> filter)
+    {
+        return _employees.Where(filter).ToList();
+    }
 
-        public EmployeeStorage(BankSystemDbContext bankSystemDbContext)
-        {
-            _bankSystemDbContext = bankSystemDbContext;
-        }
+    public void Add(Employee employee)
+    {
+        _employees.Add(employee);
+    }
 
-        public List<Employee> Get(Guid id)
-        {
-            var employee = _bankSystemDbContext.Employees
-                .Where(e => e.Id == id)
-                .ToList();
+    public void Update(Employee employee)
+    {
+        var newEmployee = _employees
+            .FirstOrDefault(e => e.PasNumber == employee.PasNumber);
 
-            return employee;
-        }
+        newEmployee.FullName = employee.FullName;
+        newEmployee.Age = employee.Age;
+        newEmployee.PasNumber = employee.PasNumber;
+        newEmployee.PhoneNumber = employee.PhoneNumber;
+        newEmployee.Contract = employee.Contract;
+        newEmployee.Salary = employee.Salary;
+        newEmployee.IsOwner = employee.IsOwner;
+    }
 
-        public void Add(Employee employee)
-        {
-            _bankSystemDbContext.Employees.Add(employee);
-            _bankSystemDbContext.SaveChanges();
-        }
+    public void Delete(Employee employee)
+    {
+        _employees.Remove(employee);
+    }
 
-        public void Update(Employee employee)
-        {
-            var existingEmployee = _bankSystemDbContext.Employees
-                .FirstOrDefault(e => e.Id == employee.Id);
-
-            if (existingEmployee != null)
-            {
-                existingEmployee.Name = employee.Name;
-                existingEmployee.Age = employee.Age;
-                existingEmployee.PasNumber = employee.PasNumber;
-                existingEmployee.PhoneNumber = employee.PhoneNumber;
-                existingEmployee.Contract = employee.Contract;
-                existingEmployee.Salary = employee.Salary;
-                existingEmployee.IsOwner = employee.IsOwner;
-
-                _bankSystemDbContext.SaveChanges();
-            }
-        }
-
-        public void Delete(Guid id)
-        {
-            var employee = _bankSystemDbContext.Employees.FirstOrDefault(e => e.Id == id);
-
-            if (employee != null)
-            {
-                _bankSystemDbContext.Employees.Remove(employee);
-                _bankSystemDbContext.SaveChanges();
-            }
-        }
-
-        public List<Employee> GetAllEmployees()
-        {
-            return _bankSystemDbContext.Employees.ToList();
-        }
+    public List<Employee> GetAllEmployees()
+    {
+        return _employees;
     }
 }
