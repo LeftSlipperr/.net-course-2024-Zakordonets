@@ -38,7 +38,7 @@ SELECT c.client_id, c.name, c.age, a.amount
 FROM client c
 JOIN account a ON c.client_id = a.client_id
 ORDER BY a.amount ASC
-LIMIT 1;
+
 
 SELECT SUM(a.amount) AS total_amount
 FROM account a;
@@ -54,7 +54,6 @@ ORDER BY c.age DESC;
 SELECT c.age, COUNT(*) AS count_of_clients
 FROM client c
 GROUP BY c.age
-HAVING COUNT(*) > 1;
 
 SELECT c.age, ARRAY_AGG(c.name) AS clients
 FROM client c

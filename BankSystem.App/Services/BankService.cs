@@ -20,7 +20,7 @@ public class BankService
     {
         Employee employee = new Employee()
         {
-            FullName = client.FullName, 
+            Name = client.Name, 
             PhoneNumber = client.PhoneNumber,
             PasNumber = client.PasNumber
         };
