@@ -57,7 +57,7 @@ namespace BankSystem.Infrastructure
         }
 
 
-        public void Update(Client client)
+        public void Update( Guid id, Client client)
         {
             var existingClient = _bankSystemDbContext.Clients
                 .FirstOrDefault(c => c.Id == client.Id);
@@ -89,9 +89,9 @@ namespace BankSystem.Infrastructure
             }
         }
 
-        public void AddAccount(Client client, Account account)
+        public void AddAccount(Guid Id, Account account)
         {
-            account.ClientId = client.Id;
+            account.ClientId = Id;
             _bankSystemDbContext.Accounts.Add(account);
             _bankSystemDbContext.SaveChanges();
         }

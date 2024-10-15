@@ -32,7 +32,7 @@ namespace BankSystem.Infrastructure
             _bankSystemDbContext.SaveChanges();
         }
 
-        public void Update(Employee employee)
+        public void Update(Guid id, Employee employee)
         {
             var existingEmployee = _bankSystemDbContext.Employees
                 .FirstOrDefault(e => e.Id == employee.Id);

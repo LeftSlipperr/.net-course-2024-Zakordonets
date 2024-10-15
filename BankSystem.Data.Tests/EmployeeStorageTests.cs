@@ -77,7 +77,7 @@ public class EmployeeStorageTests
             Salary = 20000
         };
         
-        _employeeStorage.Update(employee2);
+        _employeeStorage.Update(employee2.Id, employee2);
         
         employees = _employeeStorage.Get(employee.Id);
         var myEmployee = employees.FirstOrDefault(e => e.Id == employee.Id); 

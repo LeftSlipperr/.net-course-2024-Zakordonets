@@ -9,6 +9,6 @@ public interface IStorage<T, TResult>
 {
     TResult Get(Guid id);
     void Add(T item);
-    void Update(T item);
+    void Update(Guid id, T item);
     void Delete(Guid id);
 }

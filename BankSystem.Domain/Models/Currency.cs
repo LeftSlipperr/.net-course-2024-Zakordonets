@@ -1,9 +1,11 @@
 namespace BankSystem.Models;
 
-public struct Currency
+public class Currency
 {
     public string Symbol;
     public string CurrencyName;
+    public Account Account;
+    public Account AccountId;
     
     public override bool Equals(object obj)
     {

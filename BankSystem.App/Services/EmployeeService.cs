@@ -33,7 +33,7 @@ namespace BankSystem.App.Services
             if (existingEmployee == null)
                 throw new KeyNotFoundException("Сотрудник не найден");
 
-            _employeeStorage.Update(employee);
+            _employeeStorage.Update(employee.Id, employee);
         }
 
         public List<Employee> Get(Employee employee)

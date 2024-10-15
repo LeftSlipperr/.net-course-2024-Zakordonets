@@ -31,7 +31,7 @@ public class ClientService
     
     public void AddAccountToClient(Client client, Account account)
     {
-        _clientStorage.AddAccount(client, account);
+        _clientStorage.AddAccount(client.Id, account);
     }
     
     public void UpdateClient(Client client)
@@ -40,7 +40,7 @@ public class ClientService
         if (client == null)
             throw new MissingPassportException("Клиент с таким паспортом не найден");
         
-        _clientStorage.Update(client);
+        _clientStorage.Update(client.Id, client);
     }
 
     public void DeleteClient(Client client)
