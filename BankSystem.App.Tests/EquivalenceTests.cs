@@ -26,7 +26,7 @@ public class EquivalenceTests
         List<Employee> employees = testDataGenerator.EmployeesList();
         Dictionary<Employee, List<Account>> employeesAccount = testDataGenerator.EmployeesDictionary();
         
-        Employee employee = new Employee(){FullName = employees.LastOrDefault().FullName, PhoneNumber = employees.LastOrDefault().PhoneNumber, Age = employees.LastOrDefault().Age, PasNumber = employees.LastOrDefault().PasNumber};
+        Employee employee = new Employee(){Name = employees.LastOrDefault().Name, PhoneNumber = employees.LastOrDefault().PhoneNumber, Age = employees.LastOrDefault().Age, PasNumber = employees.LastOrDefault().PasNumber};
         List<Account> account = employeesAccount[employee];
         
         Assert.Equal(account, employeesAccount[employees.LastOrDefault()]);

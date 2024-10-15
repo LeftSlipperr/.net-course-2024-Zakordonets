@@ -16,7 +16,8 @@ public class Program
 
         Client client = new Client
         {
-            FullName = "Tom Holland",
+            Name = "Tom",
+            SecondName = "Halland",
             PhoneNumber = "08098098",
             PasNumber = "1ПР-12412412",
             Age = 18
@@ -91,7 +92,7 @@ public class Program
     {
         foreach (var employee in employees)
         {
-            employee.Contract = $"Контракт для {employee.FullName}, Должность: {employee.IsOwner}, Зарплата: {employee.Salary} руб.";
+            employee.Contract = $"Контракт для {employee.Name}, Должность: {employee.IsOwner}, Зарплата: {employee.Salary} руб.";
         }
         
     }
