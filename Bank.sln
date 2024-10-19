@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankSystem.Data", "BankSyst
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankSystem.Data.Tests", "BankSystem.Data.Tests\BankSystem.Data.Tests.csproj", "{2AB58E01-7083-4D8E-8E05-841E32178E3F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExportTool", "ExportTool\ExportTool.csproj", "{B3AC19A4-9DEC-416E-90D4-D443083F042C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{2AB58E01-7083-4D8E-8E05-841E32178E3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2AB58E01-7083-4D8E-8E05-841E32178E3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2AB58E01-7083-4D8E-8E05-841E32178E3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3AC19A4-9DEC-416E-90D4-D443083F042C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3AC19A4-9DEC-416E-90D4-D443083F042C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3AC19A4-9DEC-416E-90D4-D443083F042C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3AC19A4-9DEC-416E-90D4-D443083F042C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -70,5 +76,6 @@ Global
 		{0F8D2A80-5D47-4C79-BF9C-4C12DF809CEF} = {2DAB60D7-5A6B-4CEC-A89D-2D0EA563B334}
 		{16E25F33-2418-4CBC-9203-52B54E66A954} = {6AB21307-1A0A-4FCA-AEED-3421BE5F26DE}
 		{2AB58E01-7083-4D8E-8E05-841E32178E3F} = {6AB21307-1A0A-4FCA-AEED-3421BE5F26DE}
+		{B3AC19A4-9DEC-416E-90D4-D443083F042C} = {BCDD88E8-992E-4798-A26E-12FB1F55E5A5}
 	EndGlobalSection
 EndGlobal

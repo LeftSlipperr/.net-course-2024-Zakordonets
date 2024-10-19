@@ -34,6 +34,12 @@ namespace BankSystem.Infrastructure
             return new Dictionary<Client, List<Account>>();
         }
 
+        public List<Client> GetListOfclients()
+        {
+            var clients = _bankSystemDbContext.Clients.ToList();
+            return clients;
+        }
+
         public void Add(Client client)
         {
             if (client.Id == Guid.Empty)
