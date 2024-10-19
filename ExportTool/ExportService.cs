@@ -28,7 +28,7 @@ public class ExportService
         }
     }
     
-    public List<Client> ReadClientsFromCsv()
+    public void ReadClientsFromCsv()
     {
         string fullPath = Path.Combine("C:", "Users", "Admin", "Desktop", "test.csv");
       
@@ -36,7 +36,10 @@ public class ExportService
         using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
         {
             var clients = csv.GetRecords<Client>().ToList();
-            return clients;
+            foreach (var client in clients)
+            {
+                _clientStorage.Add(client);
+            }
         }
     }
 }

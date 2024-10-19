@@ -78,10 +78,13 @@ public class ExportServiceTests
                 csv.WriteRecords(clients);
             }
             
-            var readClients = exportService.ReadClientsFromCsv();
-            
-            Assert.Equal(clients.Count, readClients.Count);
-            Assert.Equal(clients[0].Name, readClients[0].Name);
-            Assert.Equal(clients[1].Name, readClients[1].Name);
+            using (var reader = new StreamReader(filePath))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+                var readClients = csv.GetRecords<Client>().ToList();
+                Assert.Equal(clients.Count, readClients.Count);
+                Assert.Equal(clients[0].Name, readClients[0].Name);
+                Assert.Equal(clients[1].Name, readClients[1].Name);
+            }
         }
 }
