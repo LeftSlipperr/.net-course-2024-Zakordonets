@@ -15,11 +15,11 @@ public class ExportService
         _clientStorage = new BankSystem.Infrastructure.ClientStorage(new BankSystemDbContext());
     }
     
-    public void WriteClientsToCsv()
+    public void WriteClientsToCsv(List<Client> listOfClients)
     {
         string fullPath = Path.Combine("C:", "Users", "Admin", "Desktop", "test.csv");
 
-        var clients = _clientStorage.GetListOfclients();
+        var clients = listOfClients;
       
         using (var writer = new StreamWriter(fullPath))
         using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))

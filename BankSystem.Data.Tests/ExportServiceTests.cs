@@ -48,7 +48,7 @@ public class ExportServiceTests
             
             string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "test.csv");
             
-            exportService.WriteClientsToCsv();
+            exportService.WriteClientsToCsv(clients);
             
             Assert.True(File.Exists(filePath));
             
