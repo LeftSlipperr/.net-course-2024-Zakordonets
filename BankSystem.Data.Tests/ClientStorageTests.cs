@@ -11,9 +11,6 @@ namespace BankSystem.Data.Tests;
 public class ClientStorageTests
 {
     private static Infrastructure.ClientStorage _clientStorage = new Infrastructure.ClientStorage(new BankSystemDbContext());
-    private static TestDataGenerator _testDataGenerator = new TestDataGenerator();
-    private List<Client> clients = _testDataGenerator.ClientsList();
-    private Dictionary<Client, List<Account>> _clientsAccount = _testDataGenerator.ClientsDictionary();
     private ClientService _clientService = new ClientService(_clientStorage);
    
     [Fact]

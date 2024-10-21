@@ -20,7 +20,7 @@ public class ClientServiceTests
     }
 
     [Fact]
-    public void AddClientAddsClientSuccessfully()
+    public void AddClientSuccessfully()
     {
         var client = new Client
         {

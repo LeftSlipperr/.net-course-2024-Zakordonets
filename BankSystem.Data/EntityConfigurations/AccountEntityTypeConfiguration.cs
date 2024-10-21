@@ -14,6 +14,8 @@ public class AccountEntityTypeConfiguration : IEntityTypeConfiguration<Account>
         builder.Property(a => a.Id).IsRequired();
         builder.Property(a => a.CurrencyName).IsRequired();
         builder.Property(a => a.Amount).HasDefaultValue(0).IsRequired();
+
+        builder.HasKey(a => a.Id);
         
         builder.HasOne(a => a.Client).WithMany(c =>
             c.Accounts).HasForeignKey(cl => cl.ClientId);
