@@ -44,13 +44,11 @@ public class ExportServiceTests
             clientStorage.Add(client);
             clientStorage.Add(client2);
 
-            var clients = clientStorage.GetListOfclients();
+            var clients = clientStorage.GetClientsByParameters("John");
             
             string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "test.csv");
             
-            exportService.WriteClientsToCsv(clients);
-            
-            Assert.True(File.Exists(filePath));
+            exportService.WriteClientsToCsv(clients, filePath);
             
             using (var reader = new StreamReader(filePath))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
@@ -60,6 +58,8 @@ public class ExportServiceTests
                 Assert.Equal(clients[0].Name, readClients[0].Name);
                 Assert.Equal(clients[1].Name, readClients[1].Name);
             }
+            
+            Assert.True(File.Exists(filePath));
         }
         
         [Fact]
@@ -70,7 +70,7 @@ public class ExportServiceTests
             var exportService = new ExportService();
             string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "test.csv");
             
-            var clients = clientStorage.GetListOfclients();
+            var clients = clientStorage.GetClientsByParameters("John");
 
             using (var writer = new StreamWriter(filePath))
             using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))

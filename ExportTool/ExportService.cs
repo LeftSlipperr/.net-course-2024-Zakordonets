@@ -15,9 +15,8 @@ public class ExportService
         _clientStorage = new BankSystem.Infrastructure.ClientStorage(new BankSystemDbContext());
     }
     
-    public void WriteClientsToCsv(List<Client> listOfClients)
+    public void WriteClientsToCsv(List<Client> listOfClients, string fullPath)
     {
-        string fullPath = Path.Combine("C:", "Users", "Admin", "Desktop", "test.csv");
 
         var clients = listOfClients;
       
@@ -28,9 +27,8 @@ public class ExportService
         }
     }
     
-    public void ReadClientsFromCsv()
+    public void ReadClientsFromCsv(string fullPath)
     {
-        string fullPath = Path.Combine("C:", "Users", "Admin", "Desktop", "test.csv");
       
         using (var reader = new StreamReader(fullPath))
         using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
