@@ -3,6 +3,7 @@ using BankSystem.Models;
 using ClientStorage;
 using CsvHelper;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace ExportTool;
 
@@ -17,7 +18,6 @@ public class ExportService
     
     public void WriteClientsToCsv(List<Client> listOfClients, string fullPath)
     {
-
         var clients = listOfClients;
       
         using (var writer = new StreamWriter(fullPath))
@@ -39,5 +39,18 @@ public class ExportService
                 _clientStorage.Add(client);
             }
         }
+    }
+    
+    public void ItemsSerialization<T>(T item, string filePath)
+    {
+        string json = JsonConvert.SerializeObject(item, Formatting.Indented);
+        File.WriteAllText(filePath, json);
+    }
+    
+    public List<T> ItemsDeserialization<T>(string filePath)
+    {
+        string json = File.ReadAllText(filePath);
+        List<T> deserializedObject = JsonConvert.DeserializeObject<List<T>>(json);
+        return deserializedObject;
     }
 }

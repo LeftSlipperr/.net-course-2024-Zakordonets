@@ -1,4 +1,5 @@
 using System.Globalization;
+using BankSystem.App.Services;
 using BankSystem.Models;
 using ClientStorage;
 using CsvHelper;
@@ -86,5 +87,60 @@ public class ExportServiceTests
                 Assert.Equal(clients[0].Name, readClients[0].Name);
                 Assert.Equal(clients[1].Name, readClients[1].Name);
             }
+        }
+        
+        [Fact]
+        public void SerializeClientsSuccessfully()
+        {
+            Infrastructure.ClientStorage clientStorage = new Infrastructure.ClientStorage(new BankSystemDbContext());
+            var exportService = new ExportService();
+            
+            string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "client.json");
+            exportService.ItemsSerialization(clientStorage.GetClientsByParameters("John"), filePath);
+            
+            string jsonFromFile = File.ReadAllText(filePath);
+            Assert.Contains("John", jsonFromFile);
+            
+        }
+        
+        [Fact]
+        public void SerializeEmployeesSuccessfully()
+        {
+            Infrastructure.EmployeeStorage employeeStorage = new Infrastructure.EmployeeStorage(new BankSystemDbContext());
+            var exportService = new ExportService();
+            
+            string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "employee.json");
+            exportService.ItemsSerialization(employeeStorage.GetEmployeesByParameters("John"), filePath);
+            
+            string jsonFromFile = File.ReadAllText(filePath);
+            Assert.Contains("John", jsonFromFile);
+        }
+
+        [Fact]
+        public void DeserializeEmployeesSuccessfully()
+        {
+            var exportService = new ExportService();
+
+            string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "employee.json");
+            
+            var employeesDeserialize = exportService.ItemsDeserialization<Employee>(filePath);
+
+            Assert.NotNull(employeesDeserialize); 
+            Assert.NotEmpty(employeesDeserialize);
+            Assert.Contains(employeesDeserialize, e => e.Name == "John");
+        }
+        
+        [Fact]
+        public void DeserializeClientsSuccessfully()
+        {
+            var exportService = new ExportService();
+
+            string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "client.json");
+            
+            var employeesDeserialize = exportService.ItemsDeserialization<Employee>(filePath);
+
+            Assert.NotNull(employeesDeserialize); 
+            Assert.NotEmpty(employeesDeserialize);
+            Assert.Contains(employeesDeserialize, e => e.Name == "John");
         }
 }
