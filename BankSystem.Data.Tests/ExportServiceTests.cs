@@ -119,11 +119,15 @@ public class ExportServiceTests
         [Fact]
         public void DeserializeEmployeesSuccessfully()
         {
+            Infrastructure.EmployeeStorage employeeStorage = new Infrastructure.EmployeeStorage(new BankSystemDbContext());
             var exportService = new ExportService();
 
             string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "employee.json");
             
             var employeesDeserialize = exportService.ItemsDeserialization<Employee>(filePath);
+            
+            foreach (var employee in employeesDeserialize)
+                employeeStorage.Add(employee);
 
             Assert.NotNull(employeesDeserialize); 
             Assert.NotEmpty(employeesDeserialize);
@@ -133,14 +137,20 @@ public class ExportServiceTests
         [Fact]
         public void DeserializeClientsSuccessfully()
         {
+            Infrastructure.ClientStorage clientStorage = new Infrastructure.ClientStorage(new BankSystemDbContext());
             var exportService = new ExportService();
 
             string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "client.json");
             
-            var employeesDeserialize = exportService.ItemsDeserialization<Employee>(filePath);
+            var clientDeserialize = exportService.ItemsDeserialization<Client>(filePath);
 
-            Assert.NotNull(employeesDeserialize); 
-            Assert.NotEmpty(employeesDeserialize);
-            Assert.Contains(employeesDeserialize, e => e.Name == "John");
+            foreach (var client in clientDeserialize)
+            {
+                clientStorage.Add(client);
+            }
+
+            Assert.NotNull(clientDeserialize); 
+            Assert.NotEmpty(clientDeserialize);
+            Assert.Contains(clientDeserialize, c => c.Name == "John");
         }
 }
