@@ -95,8 +95,24 @@ public class ExportServiceTests
             Infrastructure.ClientStorage clientStorage = new Infrastructure.ClientStorage(new BankSystemDbContext());
             var exportService = new ExportService();
             
+            Client client = new Client
+            {
+                Id = new Guid(),
+                Name = "John",
+                SecondName = "Bobson",
+                ThirdName = "Bibson",
+                Age = 25,
+                PasNumber = "123456789",
+                PhoneNumber = "1234567",
+                AccountNumber = 123,
+                Balance = 123
+            };
+            
+            clientStorage.Add(client);
+            
             string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "client.json");
-            exportService.ItemsSerialization(clientStorage.GetClientsByParameters("John"), filePath);
+            Client clientSerialize = clientStorage.GetClientsByParameters("John").FirstOrDefault();
+            exportService.ItemsSerialization(clientSerialize, filePath);
             
             string jsonFromFile = File.ReadAllText(filePath);
             Assert.Contains("John", jsonFromFile);
@@ -106,18 +122,36 @@ public class ExportServiceTests
         [Fact]
         public void SerializeEmployeesSuccessfully()
         {
+            
             Infrastructure.EmployeeStorage employeeStorage = new Infrastructure.EmployeeStorage(new BankSystemDbContext());
             var exportService = new ExportService();
             
+            Employee employee = new Employee()
+            {
+                Id = new Guid(),
+                Name = "John",
+                SecondName = "Bobson",
+                ThirdName = "Bibson",
+                Age = 25,
+                PasNumber = "123456789",
+                PhoneNumber = "1234567",
+                IsOwner = false,
+                Contract = "Контракт заключен",
+                Salary = 20000
+            };
+        
+            employeeStorage.Add(employee);
+            
             string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "employee.json");
-            exportService.ItemsSerialization(employeeStorage.GetEmployeesByParameters("John"), filePath);
+            Employee serializeEmployee = employeeStorage.GetEmployeesByParameters("John").FirstOrDefault();
+            exportService.ItemsSerialization(serializeEmployee, filePath);
             
             string jsonFromFile = File.ReadAllText(filePath);
             Assert.Contains("John", jsonFromFile);
         }
-
+        
         [Fact]
-        public void DeserializeEmployeesSuccessfully()
+        public void DeserializeEmployeeSuccessfully()
         {
             Infrastructure.EmployeeStorage employeeStorage = new Infrastructure.EmployeeStorage(new BankSystemDbContext());
             var exportService = new ExportService();
@@ -126,16 +160,15 @@ public class ExportServiceTests
             
             var employeesDeserialize = exportService.ItemsDeserialization<Employee>(filePath);
             
-            foreach (var employee in employeesDeserialize)
-                employeeStorage.Add(employee);
+                employeeStorage.Delete(employeesDeserialize.Id);
+                employeeStorage.Add(employeesDeserialize);
 
             Assert.NotNull(employeesDeserialize); 
-            Assert.NotEmpty(employeesDeserialize);
-            Assert.Contains(employeesDeserialize, e => e.Name == "John");
+            Assert.Equal( "John", employeesDeserialize.Name);
         }
         
         [Fact]
-        public void DeserializeClientsSuccessfully()
+        public void DeserializeClientSuccessfully()
         {
             Infrastructure.ClientStorage clientStorage = new Infrastructure.ClientStorage(new BankSystemDbContext());
             var exportService = new ExportService();
@@ -144,13 +177,11 @@ public class ExportServiceTests
             
             var clientDeserialize = exportService.ItemsDeserialization<Client>(filePath);
 
-            foreach (var client in clientDeserialize)
-            {
-                clientStorage.Add(client);
-            }
+                clientStorage.Delete(clientDeserialize.Id);
+                clientStorage.Add(clientDeserialize);
+            
 
             Assert.NotNull(clientDeserialize); 
-            Assert.NotEmpty(clientDeserialize);
-            Assert.Contains(clientDeserialize, c => c.Name == "John");
+            Assert.Equal("John", clientDeserialize.Name);
         }
 }

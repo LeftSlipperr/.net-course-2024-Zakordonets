@@ -47,10 +47,10 @@ public class ExportService
         File.WriteAllText(filePath, json);
     }
     
-    public List<T> ItemsDeserialization<T>(string filePath)
+    public T ItemsDeserialization<T>(string filePath)
     {
         string json = File.ReadAllText(filePath);
-        List<T> deserializedObject = JsonConvert.DeserializeObject<List<T>>(json);
+        T deserializedObject = JsonConvert.DeserializeObject<T>(json);
         return deserializedObject;
     }
 }
