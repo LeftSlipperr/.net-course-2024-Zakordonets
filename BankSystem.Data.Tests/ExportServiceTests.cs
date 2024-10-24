@@ -1,4 +1,5 @@
 using System.Globalization;
+using BankSystem.App.Services;
 using BankSystem.Models;
 using ClientStorage;
 using CsvHelper;
@@ -86,5 +87,101 @@ public class ExportServiceTests
                 Assert.Equal(clients[0].Name, readClients[0].Name);
                 Assert.Equal(clients[1].Name, readClients[1].Name);
             }
+        }
+        
+        [Fact]
+        public void SerializeClientsSuccessfully()
+        {
+            Infrastructure.ClientStorage clientStorage = new Infrastructure.ClientStorage(new BankSystemDbContext());
+            var exportService = new ExportService();
+            
+            Client client = new Client
+            {
+                Id = new Guid(),
+                Name = "John",
+                SecondName = "Bobson",
+                ThirdName = "Bibson",
+                Age = 25,
+                PasNumber = "123456789",
+                PhoneNumber = "1234567",
+                AccountNumber = 123,
+                Balance = 123
+            };
+            
+            clientStorage.Add(client);
+            
+            string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "client.json");
+            Client clientSerialize = clientStorage.GetClientsByParameters("John").FirstOrDefault();
+            exportService.ItemsSerialization(clientSerialize, filePath);
+            
+            string jsonFromFile = File.ReadAllText(filePath);
+            Assert.Contains("John", jsonFromFile);
+            
+        }
+        
+        [Fact]
+        public void SerializeEmployeesSuccessfully()
+        {
+            
+            Infrastructure.EmployeeStorage employeeStorage = new Infrastructure.EmployeeStorage(new BankSystemDbContext());
+            var exportService = new ExportService();
+            
+            Employee employee = new Employee()
+            {
+                Id = new Guid(),
+                Name = "John",
+                SecondName = "Bobson",
+                ThirdName = "Bibson",
+                Age = 25,
+                PasNumber = "123456789",
+                PhoneNumber = "1234567",
+                IsOwner = false,
+                Contract = "Контракт заключен",
+                Salary = 20000
+            };
+        
+            employeeStorage.Add(employee);
+            
+            string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "employee.json");
+            Employee serializeEmployee = employeeStorage.GetEmployeesByParameters("John").FirstOrDefault();
+            exportService.ItemsSerialization(serializeEmployee, filePath);
+            
+            string jsonFromFile = File.ReadAllText(filePath);
+            Assert.Contains("John", jsonFromFile);
+        }
+        
+        [Fact]
+        public void DeserializeEmployeeSuccessfully()
+        {
+            Infrastructure.EmployeeStorage employeeStorage = new Infrastructure.EmployeeStorage(new BankSystemDbContext());
+            var exportService = new ExportService();
+
+            string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "employee.json");
+            
+            var employeesDeserialize = exportService.ItemsDeserialization<Employee>(filePath);
+            
+                employeeStorage.Delete(employeesDeserialize.Id);
+                employeeStorage.Add(employeesDeserialize);
+
+            Assert.NotNull(employeesDeserialize); 
+            Assert.Equal( "John", employeesDeserialize.Name);
+        }
+        
+        [Fact]
+        public void DeserializeClientSuccessfully()
+        {
+            Infrastructure.ClientStorage clientStorage = new Infrastructure.ClientStorage(new BankSystemDbContext());
+            var exportService = new ExportService();
+
+            string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "client.json");
+            
+            var clientDeserialize = exportService.ItemsDeserialization<Client>(filePath);
+
+                clientStorage.Delete(clientDeserialize.Id);
+                clientStorage.Add(clientDeserialize);
+            
+
+            Assert.NotNull(clientDeserialize); 
+            Assert.Equal("John", clientDeserialize.Name);
         }
 }
