@@ -164,7 +164,7 @@ public class ExportServiceTests
             await employeeStorage.AddAsync(employeesDeserialize);
 
             Assert.NotNull(employeesDeserialize); 
-            Assert.Equal( "John", employeesDeserialize.Name);
+            Assert.Equal( "John", employeesDeserialize.FirstOrDefault().Name);
         }
         
         [Fact]
@@ -182,6 +182,6 @@ public class ExportServiceTests
             
 
             Assert.NotNull(clientDeserialize); 
-            Assert.Equal("John", clientDeserialize.Name);
+            Assert.Equal("John", clientDeserialize.FirstOrDefault().Name);
         }
 }

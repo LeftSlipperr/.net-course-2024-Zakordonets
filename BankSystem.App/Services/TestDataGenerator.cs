@@ -17,10 +17,12 @@ public class TestDataGenerator
     
     Faker faker = new Faker("ru");
 
+
     public List<Client> ClientsList(int clientsCount)
     {
         clients = new List<Client>();
         for (int i = 0; i < clientsCount; i++)
+
         {
             clients.Add(new Client{
                 Id = Guid.NewGuid(),
@@ -107,5 +109,17 @@ public class TestDataGenerator
         }
 
         return employeesAccount;
+    }
+
+    public Account CreateAccount()
+    {
+        Account account = new Account
+        {
+            Id = Guid.NewGuid(),
+            Amount = 0,
+            CurrencyName = "USD"
+        };
+        
+        return account;
     }
 }
