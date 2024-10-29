@@ -17,14 +17,19 @@ public class TestDataGenerator
     
     Faker faker = new Faker("ru");
 
-    public List<Client> ClientsList()
+    public List<Client> ClientsList(int numberOfClients)
     {
         clients = new List<Client>();
-        for (int i = 0; i < 1000; i++)
+        for (int i = 0; i <= numberOfClients; i++)
         {
             clients.Add(new Client{Name = faker.Name.FirstName(),
                 PhoneNumber = faker.Phone.PhoneNumber() + i.ToString(),
                 PasNumber = "1ПР " + faker.Random.String2(8, 8, "123456789"),
+                Id = new Guid(),
+                SecondName = faker.Name.LastName(),
+                AccountNumber = faker.Random.Number(10, 99),
+                Balance = faker.Random.Decimal(10, 99),
+                Bonus = faker.Random.Decimal(10, 99),
                 Age = faker.Random.Int(1, 90)
             });
         }
@@ -99,5 +104,17 @@ public class TestDataGenerator
         }
 
         return employeesAccount;
+    }
+
+    public Account CreateAccount()
+    {
+        Account account = new Account
+        {
+            Id = Guid.NewGuid(),
+            Amount = 0,
+            CurrencyName = "USD"
+        };
+        
+        return account;
     }
 }

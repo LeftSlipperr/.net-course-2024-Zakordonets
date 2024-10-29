@@ -160,11 +160,14 @@ public class ExportServiceTests
             
             var employeesDeserialize = exportService.ItemsDeserialization<Employee>(filePath);
             
-                employeeStorage.Delete(employeesDeserialize.Id);
-                employeeStorage.Add(employeesDeserialize);
+            foreach (var employee in employeesDeserialize)
+            {
+                employeeStorage.Delete(employee.Id);
+                employeeStorage.Add(employee);
+            }
 
             Assert.NotNull(employeesDeserialize); 
-            Assert.Equal( "John", employeesDeserialize.Name);
+            Assert.Equal( "John", employeesDeserialize.FirstOrDefault().Name);
         }
         
         [Fact]
@@ -176,12 +179,14 @@ public class ExportServiceTests
             string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "client.json");
             
             var clientDeserialize = exportService.ItemsDeserialization<Client>(filePath);
-
-                clientStorage.Delete(clientDeserialize.Id);
-                clientStorage.Add(clientDeserialize);
+            foreach (var client in clientDeserialize)
+            {
+                clientStorage.Delete(client.Id);
+                clientStorage.Add(client);
+            }
             
 
             Assert.NotNull(clientDeserialize); 
-            Assert.Equal("John", clientDeserialize.Name);
+            Assert.Equal("John", clientDeserialize.FirstOrDefault().Name);
         }
 }

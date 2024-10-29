@@ -11,7 +11,7 @@ public class Program
     
     public static void Main(string[] args) 
     {
-        List<Client> clients = testDataGenerator.ClientsList();
+        List<Client> clients = testDataGenerator.ClientsList(1000);
         Dictionary<Client, List<Account>> clientsAccount = testDataGenerator.ClientsDictionary() ;
 
         Client client = new Client
