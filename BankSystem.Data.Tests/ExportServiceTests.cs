@@ -12,7 +12,7 @@ namespace BankSystem.Data.Tests;
 public class ExportServiceTests
 {
         [Fact]
-        public void WriteClientsToCsvSuccessfully()
+        public async Task WriteClientsToCsvSuccessfully()
         {
             ExportService exportService = new ExportService();
             Infrastructure.ClientStorage clientStorage = new Infrastructure.ClientStorage(new BankSystemDbContext());
@@ -42,10 +42,10 @@ public class ExportServiceTests
                 Balance = 123
             };
         
-            clientStorage.Add(client);
-            clientStorage.Add(client2);
+            await clientStorage.AddAsync(client);
+            await clientStorage.AddAsync(client2);
 
-            var clients = clientStorage.GetClientsByParameters("John");
+            var clients = await clientStorage.GetClientsByParametersAsync("John");
             
             string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "test.csv");
             
@@ -64,14 +64,14 @@ public class ExportServiceTests
         }
         
         [Fact]
-        public void ReadClientsFromCsvSuccessfully()
+        public async Task ReadClientsFromCsvSuccessfully()
         {
             Infrastructure.ClientStorage clientStorage = new Infrastructure.ClientStorage(new BankSystemDbContext());
             
             var exportService = new ExportService();
             string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "test.csv");
             
-            var clients = clientStorage.GetClientsByParameters("John");
+            var clients = await clientStorage.GetClientsByParametersAsync("John");
 
             using (var writer = new StreamWriter(filePath))
             using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
@@ -90,7 +90,7 @@ public class ExportServiceTests
         }
         
         [Fact]
-        public void SerializeClientsSuccessfully()
+        public async Task SerializeClientsSuccessfully()
         {
             Infrastructure.ClientStorage clientStorage = new Infrastructure.ClientStorage(new BankSystemDbContext());
             var exportService = new ExportService();
@@ -108,11 +108,11 @@ public class ExportServiceTests
                 Balance = 123
             };
             
-            clientStorage.Add(client);
+            await clientStorage.AddAsync(client);
             
             string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "client.json");
-            Client clientSerialize = clientStorage.GetClientsByParameters("John").FirstOrDefault();
-            exportService.ItemsSerialization(clientSerialize, filePath);
+            var clientSerialize = await clientStorage.GetClientsByParametersAsync("John");
+            exportService.ItemsSerialization(clientSerialize.FirstOrDefault(), filePath);
             
             string jsonFromFile = File.ReadAllText(filePath);
             Assert.Contains("John", jsonFromFile);
@@ -120,7 +120,7 @@ public class ExportServiceTests
         }
         
         [Fact]
-        public void SerializeEmployeesSuccessfully()
+        public async Task SerializeEmployeesSuccessfully()
         {
             
             Infrastructure.EmployeeStorage employeeStorage = new Infrastructure.EmployeeStorage(new BankSystemDbContext());
@@ -140,18 +140,18 @@ public class ExportServiceTests
                 Salary = 20000
             };
         
-            employeeStorage.Add(employee);
+            await employeeStorage.AddAsync(employee);
             
             string filePath = Path.Combine("C:", "Users", "Admin", "Desktop", "employee.json");
-            Employee serializeEmployee = employeeStorage.GetEmployeesByParameters("John").FirstOrDefault();
-            exportService.ItemsSerialization(serializeEmployee, filePath);
+            var serializeEmployee = await employeeStorage.GetEmployeesByParameters("John");
+            exportService.ItemsSerialization(serializeEmployee.FirstOrDefault(), filePath);
             
             string jsonFromFile = File.ReadAllText(filePath);
             Assert.Contains("John", jsonFromFile);
         }
         
         [Fact]
-        public void DeserializeEmployeeSuccessfully()
+        public async Task DeserializeEmployeeSuccessfully()
         {
             Infrastructure.EmployeeStorage employeeStorage = new Infrastructure.EmployeeStorage(new BankSystemDbContext());
             var exportService = new ExportService();
@@ -160,15 +160,15 @@ public class ExportServiceTests
             
             var employeesDeserialize = exportService.ItemsDeserialization<Employee>(filePath);
             
-                employeeStorage.Delete(employeesDeserialize.Id);
-                employeeStorage.Add(employeesDeserialize);
+            await employeeStorage.DeleteAsync(employeesDeserialize.Id);
+            await employeeStorage.AddAsync(employeesDeserialize);
 
             Assert.NotNull(employeesDeserialize); 
             Assert.Equal( "John", employeesDeserialize.Name);
         }
         
         [Fact]
-        public void DeserializeClientSuccessfully()
+        public async Task DeserializeClientSuccessfully()
         {
             Infrastructure.ClientStorage clientStorage = new Infrastructure.ClientStorage(new BankSystemDbContext());
             var exportService = new ExportService();
@@ -177,8 +177,8 @@ public class ExportServiceTests
             
             var clientDeserialize = exportService.ItemsDeserialization<Client>(filePath);
 
-                clientStorage.Delete(clientDeserialize.Id);
-                clientStorage.Add(clientDeserialize);
+            await clientStorage.DeleteAsync(clientDeserialize.Id);
+            await clientStorage.AddAsync(clientDeserialize);
             
 
             Assert.NotNull(clientDeserialize); 

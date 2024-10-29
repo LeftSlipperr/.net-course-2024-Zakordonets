@@ -17,32 +17,32 @@ namespace BankSystem.Infrastructure
             _bankSystemDbContext = bankSystemDbContext;
         }
 
-        public Dictionary<Client, List<Account>> Get(Guid id)
+        public async Task<Dictionary<Client, List<Account>>> GetAsync(Guid id)
         {
-            var clientWithAccounts = _bankSystemDbContext.Clients
-                .Include(c => c.Accounts) 
-                .FirstOrDefault(c => c.Id == id);
+                var clientWithAccounts = await _bankSystemDbContext.Clients
+                    .Include(c => c.Accounts)
+                    .FirstOrDefaultAsync(c => c.Id == id);
 
-            if (clientWithAccounts != null)
-            {
-                return new Dictionary<Client, List<Account>>
+                if (clientWithAccounts != null)
                 {
-                    { clientWithAccounts, clientWithAccounts.Accounts.ToList() }
-                };
-            }
+                    return new Dictionary<Client, List<Account>>
+                    {
+                        { clientWithAccounts, clientWithAccounts.Accounts.ToList() }
+                    };
+                }
 
-            return new Dictionary<Client, List<Account>>();
+                return new Dictionary<Client, List<Account>>();
         }
 
-        public void Add(Client client)
+        public async Task AddAsync(Client client)
         {
             if (client.Id == Guid.Empty)
             {
                 client.Id = Guid.NewGuid();
             }
 
-            _bankSystemDbContext.Clients.Add(client);
-            _bankSystemDbContext.SaveChanges();
+            await _bankSystemDbContext.Clients.AddAsync(client);
+            await _bankSystemDbContext.SaveChangesAsync();
 
             var defaultAccount = new Account
             {
@@ -52,15 +52,15 @@ namespace BankSystem.Infrastructure
                 CurrencyName = "USD"
             };
 
-            _bankSystemDbContext.Accounts.Add(defaultAccount);
-            _bankSystemDbContext.SaveChanges();
+            await _bankSystemDbContext.Accounts.AddAsync(defaultAccount);
+            await _bankSystemDbContext.SaveChangesAsync();
         }
 
 
-        public void Update(Client client)
+        public async Task UpdateAsync(Client client)
         {
-            var existingClient = _bankSystemDbContext.Clients
-                .FirstOrDefault(c => c.Id == client.Id);
+            var existingClient = await _bankSystemDbContext.Clients
+                .FirstOrDefaultAsync(c => c.Id == client.Id);
 
             if (existingClient != null)
             {
@@ -73,56 +73,58 @@ namespace BankSystem.Infrastructure
                 existingClient.PasNumber = client.PasNumber;
                 existingClient.PhoneNumber = client.PhoneNumber;
 
-                _bankSystemDbContext.SaveChanges();
+                await _bankSystemDbContext.SaveChangesAsync();
             }
         }
 
-        public void Delete(Guid id)
+        public async Task DeleteAsync(Guid id)
         {
-            var clientToRemove = _bankSystemDbContext.Clients
-                .FirstOrDefault(c => c.Id == id);
+            var clientToRemove = await _bankSystemDbContext.Clients
+                .FirstOrDefaultAsync(c => c.Id == id);
 
             if (clientToRemove != null)
             {
                 _bankSystemDbContext.Clients.Remove(clientToRemove);
-                _bankSystemDbContext.SaveChanges(); 
+                await _bankSystemDbContext.SaveChangesAsync(); 
             }
         }
 
-        public void AddAccount(Client client, Account account)
+        public async Task AddAccountAsync(Client client, Account account)
         {
             account.ClientId = client.Id;
-            _bankSystemDbContext.Accounts.Add(account);
-            _bankSystemDbContext.SaveChanges();
+            await _bankSystemDbContext.Accounts.AddAsync(account);
+            await _bankSystemDbContext.SaveChangesAsync();
         }
 
-        public void UpdateAccount(Account account)
+        public async Task UpdateAccountAsync(Account account)
         {
-            var existingAccount = _bankSystemDbContext.Accounts
-                .FirstOrDefault(a => a.Id == account.Id);
+            
+                var existingAccount = await _bankSystemDbContext.Accounts
+                    .FirstOrDefaultAsync(a => a.Id == account.Id);
 
-            if (existingAccount != null)
-            {
-                existingAccount.CurrencyName = account.CurrencyName;
-                existingAccount.Amount = account.Amount;
+                if (existingAccount != null)
+                {
+                    existingAccount.CurrencyName = account.CurrencyName;
+                    existingAccount.Amount = account.Amount;
 
-                _bankSystemDbContext.SaveChanges();
-            }
+                    await _bankSystemDbContext.SaveChangesAsync();
+                }
+            
         }
 
-        public void DeleteAccount(Guid id)
+        public async Task DeleteAccountAsync(Guid id)
         {
-            var accountToRemove = _bankSystemDbContext.Accounts
-                .FirstOrDefault(a => a.Id == id);
+            var accountToRemove = await _bankSystemDbContext.Accounts
+                .FirstOrDefaultAsync(a => a.Id == id);
 
             if (accountToRemove != null)
             {
                 _bankSystemDbContext.Accounts.Remove(accountToRemove);
-                _bankSystemDbContext.SaveChanges();
+                await _bankSystemDbContext.SaveChangesAsync();
             }
         }
         
-        public List<Client> GetClientsByParameters(
+        public async Task<List<Client>> GetClientsByParametersAsync(
             string name = null, string secondName = null, string thirdName = null, 
             string phoneNumber = null, string pasNumber = null, 
             int? age = null, int? accountNumber = null, decimal? balance = null,
@@ -154,7 +156,17 @@ namespace BankSystem.Infrastructure
             
             query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
             
-            return query.ToList();
+            return await query.ToListAsync();
+        }
+        
+        public async Task<Dictionary<Client, List<Account>>> GetAllClientsWithAccountsAsync()
+        {
+            return await _bankSystemDbContext.Clients
+                .Include(c => c.Accounts)  // Загрузка связанных аккаунтов
+                .ToDictionaryAsync(
+                    client => client, 
+                    client => client.Accounts.ToList()
+                );
         }
 
 

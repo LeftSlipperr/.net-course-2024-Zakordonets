@@ -17,15 +17,21 @@ public class TestDataGenerator
     
     Faker faker = new Faker("ru");
 
-    public List<Client> ClientsList()
+    public List<Client> ClientsList(int clientsCount)
     {
         clients = new List<Client>();
-        for (int i = 0; i < 1000; i++)
+        for (int i = 0; i < clientsCount; i++)
         {
-            clients.Add(new Client{Name = faker.Name.FirstName(),
+            clients.Add(new Client{
+                Id = Guid.NewGuid(),
+                Name = faker.Name.FirstName(),
+                SecondName = faker.Name.LastName(),
+                ThirdName = faker.Name.FirstName(),
+                AccountNumber = faker.Random.Number(10, 99),
+                Balance = faker.Random.Number(10, 99),
                 PhoneNumber = faker.Phone.PhoneNumber() + i.ToString(),
                 PasNumber = "1ПР " + faker.Random.String2(8, 8, "123456789"),
-                Age = faker.Random.Int(1, 90)
+                Age = faker.Random.Int(18, 90)
             });
         }
         return clients;
@@ -41,7 +47,9 @@ public class TestDataGenerator
             {
                 accounts.Add(new Account()
                 {
-                    Amount = faker.Finance.Amount(),
+                    Id = Guid.NewGuid(),
+                    ClientId = client.Id,
+                    Amount = 1000 ,
                     /*Currency = new Currency()
                     {
                         CurrencyName = "Rub", 

@@ -14,7 +14,7 @@ public class ClientStorageTests
     private ClientService _clientService = new ClientService(_clientStorage);
    
     [Fact]
-    public void AddClientAddsClientSuccessfully()
+    public async Task AddClientAddsClientSuccessfully()
     {
         Client client = new Client
         {
@@ -29,9 +29,9 @@ public class ClientStorageTests
             Balance = 123
         };
         
-        _clientService.Add(client);
+        await _clientService.AddAsync(client);
 
-        var clients = _clientService.Get(client);
+        var clients = await _clientService.GetAsync(client);
         var result = clients.FirstOrDefault();
         var myClient = result.Key;
         
@@ -39,7 +39,7 @@ public class ClientStorageTests
     }
     
     [Fact]
-    public void UpdateClientPositiveTest()
+    public async Task UpdateClientPositiveTest()
     {
         
         Client client = new Client
@@ -55,7 +55,7 @@ public class ClientStorageTests
             Balance = 123
         };
         
-        _clientService.Add(client);
+        await _clientService.AddAsync(client);
         
         var updatedClient = new Client
         {
@@ -70,15 +70,15 @@ public class ClientStorageTests
             Balance = 123
         };
         
-        _clientService.UpdateClient(updatedClient);
+        await _clientService.UpdateClientAsync(updatedClient);
 
-        var newClient = _clientService.Get(client);
+        var newClient =  await _clientService.GetAsync(client);
         
         Assert.Equal(newClient.Keys.FirstOrDefault(c => c.Id == updatedClient.Id), updatedClient);
     }
     
     [Fact]
-    public void DeleteClientPositiveTest()
+    public async Task DeleteClientPositiveTest()
     {
         Client client = new Client
         {
@@ -93,18 +93,18 @@ public class ClientStorageTests
             Balance = 123
         };
         
-        _clientService.Add(client);
+        await _clientService.AddAsync(client);
         
-        _clientService.DeleteClient(client);
+        await _clientService.DeleteClientAsync(client);
         
-        var newClient = _clientService.Get(client);
+        var newClient = await _clientService.GetAsync(client);
 
         Assert.NotEqual(newClient.Keys.FirstOrDefault(c => c.Id == client.Id), client);
     }
 
 
     [Fact]
-    public void AddAccountPositiveTest()
+    public async Task AddAccountPositiveTest()
     {
         Client client = new Client
         {
@@ -119,7 +119,7 @@ public class ClientStorageTests
             Balance = 123
         };
         
-        _clientService.Add(client);
+        await _clientService.AddAsync(client);
         
         var account = new Account
         {
@@ -127,9 +127,9 @@ public class ClientStorageTests
             CurrencyName = "EUR"
         };
         
-        _clientService.AddAccountToClient(client, account);
+        await _clientService.AddAccountToClientAsync(client, account);
         
-        var newClient = _clientService.Get(client);
+        var newClient = await _clientService.GetAsync(client);
         var accounts = newClient.Values;
         var newAccount = accounts.FirstOrDefault();
         
@@ -137,7 +137,7 @@ public class ClientStorageTests
     }
 
     [Fact]
-    public void UpdateAccountPositiveTest()
+    public async Task UpdateAccountPositiveTest()
     {
         Client client = new Client
         {
@@ -152,16 +152,16 @@ public class ClientStorageTests
             Balance = 123
         };
     
-        _clientService.Add(client);
+        await _clientService.AddAsync(client);
     
         var oldAccount = new Account { Id = new Guid(), ClientId =client.Id, Amount = 1000, /*Currency = new Currency { CurrencyName = "USD", Symbol = "$" }*/ CurrencyName = "USD"};
-        _clientService.AddAccountToClient(client, oldAccount);
+        await _clientService.AddAccountToClientAsync(client, oldAccount);
     
         var newAccount = new Account { Id = oldAccount.Id, ClientId =client.Id, Amount = 2000, /*Currency = new Currency { CurrencyName = "USD", Symbol = "$" }*/ CurrencyName = "USD"};
         
-        _clientService.UpdateAccount(newAccount);
+        await _clientService.UpdateAccountAsync(newAccount);
         
-        var newClient = _clientService.Get(client);
+        var newClient = await _clientService.GetAsync(client);
         var accounts = newClient.Values;
         var updatedAccount = accounts.FirstOrDefault();
         var myAccount = updatedAccount.First(a => a.Id.Equals(newAccount.Id));
@@ -171,7 +171,7 @@ public class ClientStorageTests
 
         
     [Fact]
-    public void DeleteAccountPositiveTest()
+    public async Task DeleteAccountPositiveTest()
     {
         Client client = new Client
         {
@@ -186,22 +186,22 @@ public class ClientStorageTests
             Balance = 123
         };
     
-        _clientService.Add(client);
+        await _clientService.AddAsync(client);
     
         var account = new Account { Id = new Guid(), ClientId = client.Id, Amount = 1000, /*Currency = new Currency { CurrencyName = "EURO", Symbol = "E" }*/ CurrencyName = "EUR"};
         
-        _clientService.AddAccountToClient(client, account);
+        await _clientService.AddAccountToClientAsync(client, account);
         
-        _clientService.DeleteAccount(account);
+        await _clientService.DeleteAccountAsync(account);
         
-        var newClient = _clientService.Get(client);
+        var newClient = await _clientService.GetAsync(client);
         var accounts = newClient.Values;
         var updatedAccount = accounts.FirstOrDefault();
         Assert.DoesNotContain(updatedAccount, a => a.Id == account.Id);
     }
     
     [Fact]
-    public void GetClientsByParametersWithPaginationTest()
+    public async Task GetClientsByParametersWithPaginationTest()
     {
         var client1 = new Client
         {
@@ -239,17 +239,17 @@ public class ClientStorageTests
             Balance = 1500
         };
 
-        _clientStorage.Add(client1);
-        _clientStorage.Add(client2);
-        _clientStorage.Add(client3);
+        await _clientStorage.AddAsync(client1);
+        await _clientStorage.AddAsync(client2);
+        await _clientStorage.AddAsync(client3);
         
-        var result = _clientStorage.GetClientsByParameters(name: "J", pageNumber: 1, pageSize: 2, sortBy: "Name");
+        var result = await _clientStorage.GetClientsByParametersAsync(name: "J", pageNumber: 1, pageSize: 2, sortBy: "Name");
         
         Assert.Equal(2, result.Count);
         Assert.Contains(result, c => c.Name == "Jack");
         Assert.Contains(result, c => c.Name == "Jane");
         
-        var nextPageResult = _clientStorage.GetClientsByParameters(name: "J", pageNumber: 2, pageSize: 2, sortBy: "Name");
+        var nextPageResult = await _clientStorage.GetClientsByParametersAsync(name: "J", pageNumber: 2, pageSize: 2, sortBy: "Name");
         
         Assert.Single(nextPageResult);
         Assert.Contains(nextPageResult, c => c.Name == "John");
