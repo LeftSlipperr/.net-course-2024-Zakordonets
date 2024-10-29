@@ -187,9 +187,6 @@ public class ClientServiceTests
     {
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
         var clients = new ConcurrentDictionary<Client, List<Account>>();
-        
-        _testDataGenerator.ClientsList(10);
-        var clientsWithAccounts = _testDataGenerator.ClientsDictionary();
 
         await Task.Run(async () =>
         {
@@ -215,7 +212,7 @@ public class ClientServiceTests
                 }
             }
         }, cts.Token);
-
+        
         var tasks = new List<Task>();
         decimal amountToWithdraw = 100;
         
@@ -233,6 +230,4 @@ public class ClientServiceTests
             Assert.Equal(0, updatedAccount.FirstOrDefault().Amount);
         }
     }
-
-
 }

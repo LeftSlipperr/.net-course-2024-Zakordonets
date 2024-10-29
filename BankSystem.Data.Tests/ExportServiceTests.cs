@@ -160,8 +160,8 @@ public class ExportServiceTests
             
             var employeesDeserialize = exportService.ItemsDeserialization<Employee>(filePath);
             
-            await employeeStorage.DeleteAsync(employeesDeserialize.Id);
-            await employeeStorage.AddAsync(employeesDeserialize);
+            await employeeStorage.DeleteAsync(employeesDeserialize.FirstOrDefault().Id);
+            await employeeStorage.AddAsync(employeesDeserialize.FirstOrDefault());
 
             Assert.NotNull(employeesDeserialize); 
             Assert.Equal( "John", employeesDeserialize.FirstOrDefault().Name);
@@ -177,8 +177,8 @@ public class ExportServiceTests
             
             var clientDeserialize = exportService.ItemsDeserialization<Client>(filePath);
 
-            await clientStorage.DeleteAsync(clientDeserialize.Id);
-            await clientStorage.AddAsync(clientDeserialize);
+            await clientStorage.DeleteAsync(clientDeserialize.FirstOrDefault().Id);
+            await clientStorage.AddAsync(clientDeserialize.FirstOrDefault());
             
 
             Assert.NotNull(clientDeserialize); 
