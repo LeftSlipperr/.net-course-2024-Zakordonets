@@ -19,7 +19,7 @@ public class RateUpdaterServiceTests
         _testDataGenerator = new TestDataGenerator();
         
         var optionsBuilder = new DbContextOptionsBuilder<BankSystemDbContext>();
-        optionsBuilder.UseNpgsql("Host=localhost;Port=5434;Username=postgres;Password=mysecretpassword;Database=local");
+        optionsBuilder.UseInMemoryDatabase(databaseName: "TestDatabase");
         
         var dbContext = new BankSystemDbContext(optionsBuilder.Options);
         
@@ -43,7 +43,7 @@ public class RateUpdaterServiceTests
 
             foreach (var account in client.Value)
             {
-                await _clientService.AddAccountAsync(client.Key, account);
+                await _clientStorage.AddAccountAsync(client.Key, account);
             }
             
         }
@@ -57,7 +57,7 @@ public class RateUpdaterServiceTests
         cancellationTokenSource.Cancel();
         
         var firstClient = clients.Keys.FirstOrDefault();
-        var updatedAccounts = (await _clientService.GetAsync(firstClient.Id))[clients.Keys.FirstOrDefault()];
+        var updatedAccounts = (await _clientStorage.GetAsync(firstClient.Id))[clients.Keys.FirstOrDefault()];
         foreach (var updatedAccount in updatedAccounts)
         {
             Assert.NotEqual(1000, updatedAccount.Amount);

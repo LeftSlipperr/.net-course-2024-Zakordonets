@@ -38,7 +38,7 @@ namespace BankSystem.Data.Storage
             return client;
         }
 
-        public async Task AddAsync(Client client)
+        public async Task<Guid> AddAsync(Client client)
         {
             if (client.Id == Guid.Empty)
             {
@@ -55,9 +55,10 @@ namespace BankSystem.Data.Storage
                 Amount = 0,
                 CurrencyName = "USD"
             };
-
             await _dbContext.Accounts.AddAsync(defaultAccount);
             await _dbContext.SaveChangesAsync();
+            
+            return client.Id;
         }
 
 
@@ -97,6 +98,7 @@ namespace BankSystem.Data.Storage
         public async Task AddAccountAsync(Client client, Account account)
         {
             account.ClientId = client.Id;
+            account.Id = Guid.NewGuid();
             await _dbContext.Accounts.AddAsync(account);
             await _dbContext.SaveChangesAsync();
         }
@@ -167,7 +169,7 @@ namespace BankSystem.Data.Storage
         public async Task<Dictionary<Client, List<Account>>> GetAllClientsWithAccountsAsync()
         {
             return await _dbContext.Clients
-                .Include(c => c.Accounts)  // Загрузка связанных аккаунтов
+                .Include(c => c.Accounts)
                 .ToDictionaryAsync(
                     client => client, 
                     client => client.Accounts.ToList()

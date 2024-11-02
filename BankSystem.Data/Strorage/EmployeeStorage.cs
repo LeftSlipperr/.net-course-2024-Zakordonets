@@ -33,10 +33,11 @@ namespace BankSystem.Infrastructure
             return employee;
         }
 
-        public async Task AddAsync(Employee employee)
+        public async Task<Guid> AddAsync(Employee employee)
         {
             await _bankSystemDbContext.Employees.AddAsync(employee);
             await _bankSystemDbContext.SaveChangesAsync();
+            return employee.Id;
         }
 
         public async Task UpdateAsync(Guid id, Employee employee)

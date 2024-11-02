@@ -23,6 +23,12 @@ public class EmployeeServiceTests
             .UseInMemoryDatabase(databaseName: "TestDatabase")
             .Options;
 
+        var mapperConfig = new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile<MappingProfile>();
+        });
+        
+        _mapper = mapperConfig.CreateMapper();
         _employeeStorage = new EmployeeStorage(new BankSystemDbContext(options));
         _employeeService = new EmployeeService(_employeeStorage, _mapper);
         _dataGenerator = new TestDataGenerator();
@@ -33,7 +39,7 @@ public class EmployeeServiceTests
         {
             Employee employee = new Employee()
             {
-                Id = new Guid(),
+                Id = Guid.NewGuid(),
                 Name = "John",
                 SecondName = "Bobson",
                 ThirdName = "Bibson",
@@ -46,9 +52,10 @@ public class EmployeeServiceTests
             };
             EmployeeDto employeeDto = _mapper.Map<EmployeeDto>(employee);
             await _employeeService.AddEmployeeAsync(employeeDto);
+            var findEmployees = await _employeeStorage.GetEmployeesByParameters("John");
             
-            List<Employee> employees = await _employeeStorage.GetAsync(employee.Id);
-            Assert.Contains(employees, e => e.Name == employee.Name);
+            
+            Assert.Contains(findEmployees, e => e.Name == employee.Name);
         }
 
         [Fact]
@@ -76,7 +83,7 @@ public class EmployeeServiceTests
         {
             Employee employee = new Employee()
             {
-                Id = new Guid(),
+                Id = Guid.NewGuid(),
                 Name = "John",
                 SecondName = "Bobson",
                 ThirdName = "Bibson",
@@ -89,10 +96,11 @@ public class EmployeeServiceTests
             };
             EmployeeDto employeeDto = _mapper.Map<EmployeeDto>(employee);
             await _employeeService.AddEmployeeAsync(employeeDto);
+            var findEmployees = await _employeeStorage.GetEmployeesByParameters("John");
 
             Employee updatedEmployee = new Employee()
             {
-                Id = employee.Id,
+                Id = findEmployees.FirstOrDefault().Id,
                 Name = "Updated",
                 SecondName = "Bobson",
                 ThirdName = "Bibson",
@@ -104,9 +112,9 @@ public class EmployeeServiceTests
                 Salary = 20000
             };
             EmployeeDto updatedEmployeeDto = _mapper.Map<EmployeeDto>(employee);
-            await _employeeService.UpdateEmployeeAsync(updatedEmployee.Id, updatedEmployeeDto);
+            await _employeeService.UpdateEmployeeAsync(findEmployees.FirstOrDefault().Id, updatedEmployeeDto);
 
-            var storedEmployee = await _employeeStorage.GetAsync(updatedEmployee.Id);
+            var storedEmployee = await _employeeStorage.GetAsync(findEmployees.FirstOrDefault().Id);
 
             Assert.Equal(updatedEmployee.Id, storedEmployee.FirstOrDefault().Id);
         }
@@ -130,8 +138,9 @@ public class EmployeeServiceTests
 
             EmployeeDto employeeDto = _mapper.Map<EmployeeDto>(employee);
             await _employeeService.AddEmployeeAsync(employeeDto);
+            var findEmployees = await _employeeStorage.GetEmployeesByParameters("John");
             
-            List<Employee> filteredClients = await _employeeService.GetAsync(employee);
+            List<Employee> filteredClients = await _employeeService.GetAsync(findEmployees.FirstOrDefault());
             
             Assert.Contains(filteredClients, c => c.Name == "John");
         }

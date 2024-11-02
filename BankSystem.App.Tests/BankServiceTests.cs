@@ -13,7 +13,7 @@ public class BankServiceTests
     }
 
     [Fact]
-    public void AddBonusToClient_AddsBonusSuccessfully()
+    public void AddBonusToClientAddsBonusSuccessfully()
     {
         Client client = new Client
         {
@@ -28,7 +28,7 @@ public class BankServiceTests
     }
 
     [Fact]
-    public void AddBonusToEmployee_AddsBonusSuccessfully()
+    public void AddBonusToEmployeeAddsBonusSuccessfully()
     {
         Employee employee = new Employee
         {
@@ -43,7 +43,7 @@ public class BankServiceTests
     }
 
     [Fact]
-    public void AddToBlackList_AddsPersonSuccessfully()
+    public void AddToBlackListAddsPersonSuccessfully()
     {
         Client client = new Client
         {
@@ -57,7 +57,7 @@ public class BankServiceTests
     }
 
     [Fact]
-    public void AddToBlackList_ThrowsExceptionIfPersonAlreadyInBlackList()
+    public void AddToBlackListThrowsExceptionIfPersonAlreadyInBlackList()
     {
         Client client = new Client
         {

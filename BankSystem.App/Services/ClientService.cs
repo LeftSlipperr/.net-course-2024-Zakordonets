@@ -10,13 +10,13 @@ public class ClientService : IClientService
 { 
     private IClientStorage _storage;
     private readonly IMapper _mapper;
-
+    private static readonly SemaphoreSlim _dbSemaphore = new SemaphoreSlim(1, 1);
     public ClientService(IClientStorage storage, IMapper mapper) 
     {
         _storage = storage;    
         _mapper = mapper;
     }
-
+    
     public async Task<Dictionary<Client, List<Account>>> GetAsync(Guid id)
     {
         return  await _storage.GetAsync(id);
@@ -30,7 +30,7 @@ public class ClientService : IClientService
         return clientDto;
     }
 
-    public async Task AddClientAsync(ClientDto clientDto)
+    public async Task<Guid> AddClientAsync(ClientDto clientDto)
     {
         if (clientDto.Age < 18)
             throw new UnderAgeClientException("Клиент моложе 18 лет");
@@ -39,7 +39,7 @@ public class ClientService : IClientService
             throw new MissingPassportException("Клиент не имеет паспортных данных");
         
         var client = _mapper.Map<Client>(clientDto); 
-        await _storage.AddAsync(client);
+        return await _storage.AddAsync(client);
     }
     
     public async Task AddAccountAsync(Client client, Account account)
@@ -98,6 +98,9 @@ public class ClientService : IClientService
 
     public async Task WithdrawFromAccountAsync(Client client, decimal amountToWithdraw)
     {
+        await _dbSemaphore.WaitAsync();
+        try
+        {
             var clientAccountsDictionary = await _storage.GetAsync(client.Id);
 
             if (clientAccountsDictionary.TryGetValue(client, out var clientAccounts))
@@ -116,7 +119,11 @@ public class ClientService : IClientService
             }
 
             throw new Exception($"Клиент с ID {client.Id} не найден.");
-        
+        }
+        finally
+        {
+            _dbSemaphore.Release();
+        }
     }
 
 

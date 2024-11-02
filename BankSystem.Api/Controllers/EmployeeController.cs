@@ -48,7 +48,7 @@ public class EmployeeController : ControllerBase
         await _employeeService.DeleteEmployeeAsync(guid);
     }
 
-    [HttpGet("FindClient")]
+    [HttpGet("FindEmployee")]
     public async Task<IActionResult> FindClient(string? name, string? secondName, string? thirdName,
         string? phoneNumber, string? pasNumber,
         int? age)

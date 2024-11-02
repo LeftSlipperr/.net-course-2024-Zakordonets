@@ -1,9 +1,3 @@
-/*using Application.Interfaces;
-using Application.Services;
-using Application.Validators;
-using FluentValidation.AspNetCore;
-using Infrastructure.Storge;*/
-
 using BankSystem.App.DTO;
 using BankSystem.App.Interfaces;
 using BankSystem.App.Services;
@@ -13,8 +7,11 @@ using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var connectionString = builder.Configuration.GetConnectionString("BankSystemDb");
+
 builder.Services.AddDbContext<BankSystemDbContext>(options =>
-    options.UseNpgsql("Host=localhost;Port=5434;Username=postgres;Password=mysecretpassword;Database=local"));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
