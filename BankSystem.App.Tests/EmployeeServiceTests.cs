@@ -21,7 +21,7 @@ public class EmployeeServiceTests
         }
 
         [Fact]
-        public void AddEmployeeAddsEmployeeSuccessfully()
+        public async Task AddEmployeeAddsEmployeeSuccessfully()
         {
             Employee employee = new Employee()
             {
@@ -37,14 +37,14 @@ public class EmployeeServiceTests
                 Salary = 20000
             };
             
-            _employeeService.AddEmployee(employee);
+            await _employeeService.AddEmployeeAsync(employee);
             
-            List<Employee> employees = _employeeStorage.Get(employee.Id);
+            List<Employee> employees = await _employeeStorage.GetAsync(employee.Id);
             Assert.Contains(employees, e => e.Name == employee.Name);
         }
 
         [Fact]
-        public void AddEmployeeThrowsUnderAgeException()
+        public async Task AddEmployeeThrowsUnderAgeException()
         {
             Employee employee = new Employee()
             {
@@ -60,11 +60,11 @@ public class EmployeeServiceTests
                 Salary = 20000
             };
 
-            Assert.Throws<UnderAgeClientException>(() => _employeeService.AddEmployee(employee));
+            await Assert.ThrowsAsync<UnderAgeClientException>(async () => await _employeeService.AddEmployeeAsync(employee));
         }
 
         [Fact]
-        public void EditEmployeeUpdatesEmployeeSuccessfully()
+        public async Task EditEmployeeUpdatesEmployeeSuccessfully()
         {
             Employee employee = new Employee()
             {
@@ -80,7 +80,7 @@ public class EmployeeServiceTests
                 Salary = 20000
             };
             
-            _employeeService.AddEmployee(employee);
+            await _employeeService.AddEmployeeAsync(employee);
 
             Employee updatedEmployee = new Employee()
             {
@@ -96,15 +96,15 @@ public class EmployeeServiceTests
                 Salary = 20000
             };
             
-            _employeeService.EditEmployee(updatedEmployee);
+            await _employeeService.EditEmployeeAsync(updatedEmployee);
 
-            var storedEmployee = _employeeStorage.Get(updatedEmployee.Id);
+            var storedEmployee = await _employeeStorage.GetAsync(updatedEmployee.Id);
 
             Assert.Equal(updatedEmployee.Id, storedEmployee.FirstOrDefault().Id);
         }
         
         [Fact]
-        public void GetEmployeeSuccessfully()
+        public async Task GetEmployeeSuccessfully()
         {
             Employee employee = new Employee()
             {
@@ -121,9 +121,9 @@ public class EmployeeServiceTests
             };
 
             
-            _employeeService.AddEmployee(employee);
+            await _employeeService.AddEmployeeAsync(employee);
             
-            List<Employee> filteredClients = _employeeService.Get(employee);
+            List<Employee> filteredClients = await _employeeService.GetAsync(employee);
             
             Assert.Contains(filteredClients, c => c.Name == "John");
         }

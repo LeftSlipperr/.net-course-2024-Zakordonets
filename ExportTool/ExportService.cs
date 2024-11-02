@@ -29,7 +29,7 @@ public class ExportService
         }
     }
     
-    public void ReadClientsFromCsv(string fullPath)
+    public async Task ReadClientsFromCsv(string fullPath)
     {
       
         using (var reader = new StreamReader(fullPath))
@@ -38,7 +38,7 @@ public class ExportService
             var clients = csv.GetRecords<Client>().ToList();
             foreach (var client in clients)
             {
-                _clientStorage.Add(client);
+                await _clientStorage.AddAsync(client);
             }
         }
     }

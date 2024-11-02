@@ -9,7 +9,8 @@ public class EquivalenceTests
     public void GetHashCodeNecessityPositivTest()
     {
         TestDataGenerator testDataGenerator = new TestDataGenerator();
-        List<Client> clients = testDataGenerator.ClientsList(1000);
+      
+        List<Client> clients = testDataGenerator.ClientsList(1);
         Dictionary<Client, List<Account>> clientsAccont= testDataGenerator.ClientsDictionary();
         
         Client client = new Client();

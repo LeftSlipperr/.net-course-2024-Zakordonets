@@ -13,7 +13,7 @@ namespace BankSystem.App.Services
             _employeeStorage = employeeStorage;
         }
 
-        public void AddEmployee(Employee employee)
+        public async Task AddEmployeeAsync(Employee employee)
         {
             if (employee.Age < 18)
                 throw new UnderAgeClientException("Сотрудник моложе 18 лет");
@@ -21,29 +21,29 @@ namespace BankSystem.App.Services
             if (string.IsNullOrEmpty(employee.PasNumber))
                 throw new MissingPassportException("Сотрудник не имеет паспортных данных");
 
-            _employeeStorage.Add(employee);
+            await _employeeStorage.AddAsync(employee);
         }
 
-        public void EditEmployee(Employee employee)
+        public async Task EditEmployeeAsync(Employee employee)
         {
             if (employee == null)
                 throw new ArgumentNullException(nameof(employee), "Сотрудник не найден");
             
-            var existingEmployee = _employeeStorage.Get(employee.Id).FirstOrDefault();
-            if (existingEmployee == null)
+            var existingEmployee =  await _employeeStorage.GetAsync(employee.Id);
+            if (existingEmployee.FirstOrDefault() == null)
                 throw new KeyNotFoundException("Сотрудник не найден");
 
-            _employeeStorage.Update(employee);
+            await _employeeStorage.UpdateAsync(employee);
         }
 
-        public List<Employee> Get(Employee employee)
+        public async Task<List<Employee>> GetAsync(Employee employee)
         {
-            return _employeeStorage.Get(employee.Id);
+            return await _employeeStorage.GetAsync(employee.Id);
         }
 
-        public void DeleteEmployee(Employee employee)
+        public async Task DeleteEmployeeAsync(Employee employee)
         {
-            _employeeStorage.Delete(employee.Id);
+            await _employeeStorage.DeleteAsync(employee.Id);
         }
     }
 }

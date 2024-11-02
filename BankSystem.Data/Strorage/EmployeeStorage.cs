@@ -17,25 +17,25 @@ namespace BankSystem.Infrastructure
             _bankSystemDbContext = bankSystemDbContext;
         }
 
-        public List<Employee> Get(Guid id)
+        public async Task<List<Employee>> GetAsync(Guid id)
         {
-            var employee = _bankSystemDbContext.Employees
+            var employee =  await _bankSystemDbContext.Employees
                 .Where(e => e.Id == id)
-                .ToList();
+                .ToListAsync();
 
             return employee;
         }
 
-        public void Add(Employee employee)
+        public async Task AddAsync(Employee employee)
         {
-            _bankSystemDbContext.Employees.Add(employee);
-            _bankSystemDbContext.SaveChanges();
+            await _bankSystemDbContext.Employees.AddAsync(employee);
+            await _bankSystemDbContext.SaveChangesAsync();
         }
 
-        public void Update(Employee employee)
+        public async Task UpdateAsync(Employee employee)
         {
-            var existingEmployee = _bankSystemDbContext.Employees
-                .FirstOrDefault(e => e.Id == employee.Id);
+            var existingEmployee = await _bankSystemDbContext.Employees
+                .FirstOrDefaultAsync(e => e.Id == employee.Id);
 
             if (existingEmployee != null)
             {
@@ -47,22 +47,22 @@ namespace BankSystem.Infrastructure
                 existingEmployee.Salary = employee.Salary;
                 existingEmployee.IsOwner = employee.IsOwner;
 
-                _bankSystemDbContext.SaveChanges();
+                await _bankSystemDbContext.SaveChangesAsync();
             }
         }
 
-        public void Delete(Guid id)
+        public async Task  DeleteAsync(Guid id)
         {
-            var employee = _bankSystemDbContext.Employees.FirstOrDefault(e => e.Id == id);
+            var employee = await _bankSystemDbContext.Employees.FirstOrDefaultAsync(e => e.Id == id);
 
             if (employee != null)
             {
                 _bankSystemDbContext.Employees.Remove(employee);
-                _bankSystemDbContext.SaveChanges();
+                await _bankSystemDbContext.SaveChangesAsync();
             }
         }
 
-        public List<Employee> GetEmployeesByParameters(
+        public async Task<List<Employee>> GetEmployeesByParameters(
             string name = null, string secondName = null, string thirdName = null,
             string phoneNumber = null, string pasNumber = null,
             int? age = null, string contract = null, decimal? salary = null,
@@ -95,7 +95,7 @@ namespace BankSystem.Infrastructure
 
             query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
-            return query.ToList();
+            return await query.ToListAsync();
         }
 
     }

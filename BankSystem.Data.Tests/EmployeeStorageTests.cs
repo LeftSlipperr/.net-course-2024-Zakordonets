@@ -20,7 +20,7 @@ public class EmployeeStorageTests
         }   
 
         [Fact]
-        public void AddEmployeeAddsEmployeeSuccessfully()
+        public async Task AddEmployeeAddsEmployeeSuccessfully()
         {
             Employee employee = new Employee()
             {
@@ -36,16 +36,16 @@ public class EmployeeStorageTests
                 Salary = 20000
             };
             
-            _employeeStorage.Add(employee);
+            await _employeeStorage.AddAsync(employee);
 
-            employees = _employeeStorage.Get(employee.Id);
+            employees = await _employeeStorage.GetAsync(employee.Id);
             var myEmployee = employees.FirstOrDefault(e => e.Id == employee.Id); 
 
             Assert.Equal(myEmployee.Id, employee.Id);
         }
         
     [Fact]
-    public void UpdateEmployeetPositiveTest()
+    public async Task UpdateEmployeetPositiveTest()
     {
         Employee employee = new Employee()
         {
@@ -61,7 +61,7 @@ public class EmployeeStorageTests
             Salary = 20000
         };
         
-        _employeeStorage.Add(employee);
+        await _employeeStorage.AddAsync(employee);
         
         Employee employee2 = new Employee()
         {
@@ -77,9 +77,9 @@ public class EmployeeStorageTests
             Salary = 20000
         };
         
-        _employeeStorage.Update(employee2);
+        await _employeeStorage.UpdateAsync(employee2);
         
-        employees = _employeeStorage.Get(employee.Id);
+        employees = await _employeeStorage.GetAsync(employee.Id);
         var myEmployee = employees.FirstOrDefault(e => e.Id == employee.Id); 
 
         Assert.Equal(myEmployee.Id, employee2.Id);
@@ -87,7 +87,7 @@ public class EmployeeStorageTests
     
     
     [Fact]
-    public void DeleteEmployeePositiveTest()
+    public async Task DeleteEmployeePositiveTest()
     {
         Employee employee = new Employee()
         {
@@ -103,11 +103,11 @@ public class EmployeeStorageTests
             Salary = 20000
         };
         
-        _employeeStorage.Add(employee);
+        await _employeeStorage.AddAsync(employee);
         
-        _employeeStorage.Delete(employee.Id);
+        await _employeeStorage.DeleteAsync(employee.Id);
         
-        var newEmployee = _employeeStorage.Get(employee.Id);
+        var newEmployee = await _employeeStorage.GetAsync(employee.Id);
         var deletedEmployee = newEmployee.FirstOrDefault();
         
         Assert.Null(deletedEmployee);
