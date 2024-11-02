@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BankSystem.Infrastructure
 {
-    public class EmployeeStorage : IStorage<Employee, List<Employee>>
+    public class EmployeeStorage : IEmployeeStorage
     {
         private readonly BankSystemDbContext _bankSystemDbContext;
 
@@ -48,6 +48,8 @@ namespace BankSystem.Infrastructure
             if (existingEmployee != null)
             {
                 existingEmployee.Name = employee.Name;
+                existingEmployee.SecondName = employee.SecondName;
+                existingEmployee.ThirdName = employee.ThirdName;
                 existingEmployee.Age = employee.Age;
                 existingEmployee.PasNumber = employee.PasNumber;
                 existingEmployee.PhoneNumber = employee.PhoneNumber;

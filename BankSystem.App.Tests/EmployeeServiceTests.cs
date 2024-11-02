@@ -1,3 +1,5 @@
+using AutoMapper;
+using BankSystem.App.DTO;
 using BankSystem.App.Interfaces;
 using BankSystem.App.Services;
 using BankSystem.App.Services.Exceptions;
@@ -10,9 +12,10 @@ namespace BankSystem.App.Tests;
 
 public class EmployeeServiceTests
 {
-    private readonly IStorage<Employee, List<Employee>> _employeeStorage;
+    private readonly IEmployeeStorage _employeeStorage;
     private readonly EmployeeService _employeeService;
     private readonly TestDataGenerator _dataGenerator;
+    private IMapper _mapper;
 
     public EmployeeServiceTests()
     {
@@ -21,7 +24,7 @@ public class EmployeeServiceTests
             .Options;
 
         _employeeStorage = new EmployeeStorage(new BankSystemDbContext(options));
-        _employeeService = new EmployeeService(_employeeStorage);
+        _employeeService = new EmployeeService(_employeeStorage, _mapper);
         _dataGenerator = new TestDataGenerator();
     }
 
@@ -41,8 +44,8 @@ public class EmployeeServiceTests
                 Contract = "Контракт заключен",
                 Salary = 20000
             };
-            
-            await _employeeService.AddEmployeeAsync(employee);
+            EmployeeDto employeeDto = _mapper.Map<EmployeeDto>(employee);
+            await _employeeService.AddEmployeeAsync(employeeDto);
             
             List<Employee> employees = await _employeeStorage.GetAsync(employee.Id);
             Assert.Contains(employees, e => e.Name == employee.Name);
@@ -64,8 +67,8 @@ public class EmployeeServiceTests
                 Contract = "Контракт заключен",
                 Salary = 20000
             };
-
-            await Assert.ThrowsAsync<UnderAgeClientException>(async () => await _employeeService.AddEmployeeAsync(employee));
+            EmployeeDto employeeDto = _mapper.Map<EmployeeDto>(employee);
+            await Assert.ThrowsAsync<UnderAgeClientException>(async () => await _employeeService.AddEmployeeAsync(employeeDto));
         }
 
         [Fact]
@@ -84,8 +87,8 @@ public class EmployeeServiceTests
                 Contract = "Контракт заключен",
                 Salary = 20000
             };
-            
-            await _employeeService.AddEmployeeAsync(employee);
+            EmployeeDto employeeDto = _mapper.Map<EmployeeDto>(employee);
+            await _employeeService.AddEmployeeAsync(employeeDto);
 
             Employee updatedEmployee = new Employee()
             {
@@ -100,8 +103,8 @@ public class EmployeeServiceTests
                 Contract = "Контракт заключен",
                 Salary = 20000
             };
-            
-            await _employeeService.EditEmployeeAsync(updatedEmployee);
+            EmployeeDto updatedEmployeeDto = _mapper.Map<EmployeeDto>(employee);
+            await _employeeService.UpdateEmployeeAsync(updatedEmployee.Id, updatedEmployeeDto);
 
             var storedEmployee = await _employeeStorage.GetAsync(updatedEmployee.Id);
 
@@ -125,8 +128,8 @@ public class EmployeeServiceTests
                 Salary = 20000
             };
 
-            
-            await _employeeService.AddEmployeeAsync(employee);
+            EmployeeDto employeeDto = _mapper.Map<EmployeeDto>(employee);
+            await _employeeService.AddEmployeeAsync(employeeDto);
             
             List<Employee> filteredClients = await _employeeService.GetAsync(employee);
             

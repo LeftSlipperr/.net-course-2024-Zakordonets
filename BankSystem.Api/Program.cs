@@ -7,6 +7,7 @@ using Infrastructure.Storge;*/
 using BankSystem.App.DTO;
 using BankSystem.App.Interfaces;
 using BankSystem.App.Services;
+using BankSystem.Infrastructure;
 using ClientStorage;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
@@ -23,11 +24,13 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddScoped<IClientStorage, BankSystem.Data.Storage.ClientStorage>();
 builder.Services.AddScoped<IClientService, ClientService>();
-
+builder.Services.AddScoped<IEmployeeStorage, EmployeeStorage>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
 builder.Services.AddFluentValidation(config =>
 {
     config.RegisterValidatorsFromAssemblyContaining<ClientDto>();
+    config.RegisterValidatorsFromAssemblyContaining<EmployeeDto>();
 });
 
 
