@@ -4,21 +4,26 @@ using BankSystem.App.Services.Exceptions;
 using BankSystem.Infrastructure;
 using BankSystem.Models;
 using ClientStorage;
+using Microsoft.EntityFrameworkCore;
 
 namespace BankSystem.App.Tests;
 
 public class EmployeeServiceTests
 {
-        private readonly IStorage<Employee, List<Employee>> _employeeStorage;
-        private readonly EmployeeService _employeeService;
-        private readonly TestDataGenerator _dataGenerator;
+    private readonly IStorage<Employee, List<Employee>> _employeeStorage;
+    private readonly EmployeeService _employeeService;
+    private readonly TestDataGenerator _dataGenerator;
 
-        public EmployeeServiceTests()
-        {
-            _employeeStorage = new EmployeeStorage(new BankSystemDbContext());
-            _employeeService = new EmployeeService(_employeeStorage);
-            _dataGenerator = new TestDataGenerator();
-        }
+    public EmployeeServiceTests()
+    {
+        var options = new DbContextOptionsBuilder<BankSystemDbContext>()
+            .UseInMemoryDatabase(databaseName: "TestDatabase")
+            .Options;
+
+        _employeeStorage = new EmployeeStorage(new BankSystemDbContext(options));
+        _employeeService = new EmployeeService(_employeeStorage);
+        _dataGenerator = new TestDataGenerator();
+    }
 
         [Fact]
         public async Task AddEmployeeAddsEmployeeSuccessfully()

@@ -23,10 +23,15 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankSystem.App.Tests", "BankSystem.App.Tests\BankSystem.App.Tests.csproj", "{0F8D2A80-5D47-4C79-BF9C-4C12DF809CEF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankSystem.Data", "BankSystem.Data\BankSystem.Data.csproj", "{16E25F33-2418-4CBC-9203-52B54E66A954}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E1B0DB21-A1D2-4677-BA30-3C0C86937849} = {E1B0DB21-A1D2-4677-BA30-3C0C86937849}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankSystem.Data.Tests", "BankSystem.Data.Tests\BankSystem.Data.Tests.csproj", "{2AB58E01-7083-4D8E-8E05-841E32178E3F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExportTool", "ExportTool\ExportTool.csproj", "{B3AC19A4-9DEC-416E-90D4-D443083F042C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankSystem.Api", "BankSystem.Api\BankSystem.Api.csproj", "{040F7D4C-F654-4A0C-B3E2-E25C88CF23DF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,6 +67,10 @@ Global
 		{B3AC19A4-9DEC-416E-90D4-D443083F042C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3AC19A4-9DEC-416E-90D4-D443083F042C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3AC19A4-9DEC-416E-90D4-D443083F042C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{040F7D4C-F654-4A0C-B3E2-E25C88CF23DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{040F7D4C-F654-4A0C-B3E2-E25C88CF23DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{040F7D4C-F654-4A0C-B3E2-E25C88CF23DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{040F7D4C-F654-4A0C-B3E2-E25C88CF23DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -77,5 +86,6 @@ Global
 		{16E25F33-2418-4CBC-9203-52B54E66A954} = {6AB21307-1A0A-4FCA-AEED-3421BE5F26DE}
 		{2AB58E01-7083-4D8E-8E05-841E32178E3F} = {6AB21307-1A0A-4FCA-AEED-3421BE5F26DE}
 		{B3AC19A4-9DEC-416E-90D4-D443083F042C} = {BCDD88E8-992E-4798-A26E-12FB1F55E5A5}
+		{040F7D4C-F654-4A0C-B3E2-E25C88CF23DF} = {6AB21307-1A0A-4FCA-AEED-3421BE5F26DE}
 	EndGlobalSection
 EndGlobal

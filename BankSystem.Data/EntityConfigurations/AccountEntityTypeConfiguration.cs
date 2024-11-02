@@ -17,8 +17,10 @@ public class AccountEntityTypeConfiguration : IEntityTypeConfiguration<Account>
 
         builder.HasKey(a => a.Id);
         
-        builder.HasOne(a => a.Client).WithMany(c =>
-            c.Accounts).HasForeignKey(cl => cl.ClientId);
+        builder.HasOne<Client>()
+            .WithMany(c => c.Accounts)
+            .HasForeignKey(a => a.ClientId)
+            .OnDelete(DeleteBehavior.Cascade);
 
     }
 }

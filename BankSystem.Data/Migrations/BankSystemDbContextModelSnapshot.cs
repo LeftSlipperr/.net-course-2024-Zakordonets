@@ -62,7 +62,9 @@ namespace ClientStorage.Migrations
                         .HasDefaultValue(0);
 
                     b.Property<decimal>("Balance")
-                        .HasColumnType("numeric");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric")
+                        .HasDefaultValue(0m);
 
                     b.Property<decimal>("Bonus")
                         .HasColumnType("numeric");
@@ -145,13 +147,11 @@ namespace ClientStorage.Migrations
 
             modelBuilder.Entity("BankSystem.Models.Account", b =>
                 {
-                    b.HasOne("BankSystem.Models.Client", "Client")
+                    b.HasOne("BankSystem.Models.Client", null)
                         .WithMany("Accounts")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Client");
                 });
 
             modelBuilder.Entity("BankSystem.Models.Client", b =>

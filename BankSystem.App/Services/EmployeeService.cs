@@ -33,7 +33,7 @@ namespace BankSystem.App.Services
             if (existingEmployee.FirstOrDefault() == null)
                 throw new KeyNotFoundException("Сотрудник не найден");
 
-            await _employeeStorage.UpdateAsync(employee);
+            await _employeeStorage.UpdateAsync(employee.Id, employee);
         }
 
         public async Task<List<Employee>> GetAsync(Employee employee)

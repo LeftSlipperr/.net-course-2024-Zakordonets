@@ -1,10 +1,14 @@
 using System.Collections.Concurrent;
+using AutoMapper;
+using BankSystem.App.DTO;
 using BankSystem.App.Interfaces;
 using BankSystem.App.Services;
 using BankSystem.App.Services.Exceptions;
 using BankSystem.Infrastructure;
 using BankSystem.Models;
 using ClientStorage;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 using Xunit.Sdk;
 
@@ -12,15 +16,21 @@ namespace BankSystem.App.Tests;
 
 public class ClientServiceTests
 {
-    private ClientService _clientService;
-    private IClientStorage _clientStorage;
-    private TestDataGenerator _testDataGenerator;
+    private readonly IClientStorage _clientStorage;
+    private readonly ClientService _clientService;
+    private readonly TestDataGenerator _dataGenerator;
+    IMapper _mapper;
 
-    public ClientServiceTests()
+    public ClientServiceTests(IMapper mapper)
     {
-        _clientStorage = new Infrastructure.ClientStorage(new BankSystemDbContext());
-        _clientService = new ClientService(_clientStorage);
-        _testDataGenerator = new TestDataGenerator();
+        var options = new DbContextOptionsBuilder<BankSystemDbContext>()
+            .UseInMemoryDatabase(databaseName: "TestDatabase")
+            .Options;
+
+        _mapper = mapper;
+        _clientStorage = new Data.Storage.ClientStorage(new BankSystemDbContext(options));
+        _clientService = new ClientService(_clientStorage, _mapper);
+        _dataGenerator = new TestDataGenerator();
     }
 
     [Fact]
@@ -38,7 +48,9 @@ public class ClientServiceTests
             Balance = 500
         };
         
-        await _clientService.AddAsync(client);
+        var clientDto = _mapper.Map<ClientDto>(client);
+        
+        await _clientService.AddClientAsync(clientDto);
         
         var allClients = await _clientStorage.GetAsync(client.Id);
         Assert.Single(allClients);
@@ -59,8 +71,9 @@ public class ClientServiceTests
             PhoneNumber = "123456789",
             Balance = 500
         };
+        var clientDto = _mapper.Map<ClientDto>(client);
         
-        await Assert.ThrowsAsync<UnderAgeClientException>( async () => await _clientService.AddAsync(client));
+        await Assert.ThrowsAsync<UnderAgeClientException>( async () => await _clientService.AddClientAsync(clientDto));
     }
 
     [Fact]
@@ -77,7 +90,9 @@ public class ClientServiceTests
             PhoneNumber = "123456789",
             Balance = 500
         };
-        await _clientService.AddAsync(client);
+        var clientDto = _mapper.Map<ClientDto>(client);
+        
+        await _clientService.AddClientAsync(clientDto);
 
         Account newAccount = new Account
         {
@@ -87,7 +102,7 @@ public class ClientServiceTests
             CurrencyName = "USD"
         };
         
-        await _clientService.AddAccountToClientAsync(client, newAccount);
+        await _clientService.AddAccountAsync(client, newAccount);
 
         var storedClient = await _clientStorage.GetAsync(client.Id);
         Assert.Contains(storedClient.FirstOrDefault().Value, a => a.CurrencyName == "USD");
@@ -107,7 +122,9 @@ public class ClientServiceTests
             PhoneNumber = "123456789",
             Balance = 500
         };
-        await _clientService.AddAsync(client);
+        var clientDto = _mapper.Map<ClientDto>(client);
+        
+        await _clientService.AddClientAsync(clientDto);
         
         Account oldAccount = new Account
         {
@@ -116,7 +133,7 @@ public class ClientServiceTests
             Amount = 100,
             CurrencyName = "RUB"
         };
-        await _clientService.AddAccountToClientAsync(client, oldAccount);
+        await _clientService.AddAccountAsync(client, oldAccount);
 
         Account updatedAccount = new Account
         {
@@ -148,8 +165,9 @@ public class ClientServiceTests
             PhoneNumber = "123456789",
             Balance = 500
         };
+        var clientDto = _mapper.Map<ClientDto>(client);
         
-        await _clientService.AddAsync(client);
+        await _clientService.AddClientAsync(clientDto);
         
         var findById = await _clientStorage.GetAsync(client.Id);
         
@@ -172,12 +190,13 @@ public class ClientServiceTests
             AccountNumber = 123,
             Balance = 123
         };
+        var clientDto = _mapper.Map<ClientDto>(client);
         
-        await _clientService.AddAsync(client);
+        await _clientService.AddClientAsync(clientDto);
         
-        await _clientService.DeleteClientAsync(client);
+        await _clientService.DeleteClientAsync(client.Id);
         
-        var newClient = await _clientService.GetAsync(client);
+        var newClient = await _clientService.GetAsync(client.Id);
 
         Assert.NotEqual(newClient.Keys.FirstOrDefault(c => c.Id == client.Id), client);
     }
@@ -192,19 +211,20 @@ public class ClientServiceTests
         {
             while (!cts.Token.IsCancellationRequested)
             {
-                _testDataGenerator.ClientsList(10);
-                var clientsWithAccounts = _testDataGenerator.ClientsDictionary();
+                _dataGenerator.ClientsList(10);
+                var clientsWithAccounts = _dataGenerator.ClientsDictionary();
             
                 foreach (var client in clientsWithAccounts)
                 {
-                    var clientAccounts = await _clientService.GetAsync(client.Key);
+                    var clientAccounts = await _clientService.GetAsync(client.Key.Id);
                     if (clientAccounts.Count == 0)
                     {
-                        await _clientService.AddAsync(client.Key);
+                        var clientDto = _mapper.Map<ClientDto>(client.Key);
+                        await _clientService.AddClientAsync(clientDto);
 
                         foreach (var account in client.Value)
                         {
-                            await _clientService.AddAccountToClientAsync(client.Key, account);
+                            await _clientService.AddAccountAsync(client.Key, account);
                         }
 
                         clients.TryAdd(client.Key, client.Value);
@@ -225,7 +245,7 @@ public class ClientServiceTests
 
         foreach (var client in clients)
         {
-            var clientAccounts = await _clientService.GetAsync(client.Key);
+            var clientAccounts = await _clientService.GetAsync(client.Key.Id);
             var updatedAccount = clientAccounts.Values.FirstOrDefault();
             Assert.Equal(0, updatedAccount.FirstOrDefault().Amount);
         }

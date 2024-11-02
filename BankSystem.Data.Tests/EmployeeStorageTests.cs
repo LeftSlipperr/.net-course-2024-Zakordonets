@@ -1,48 +1,61 @@
+using BankSystem.App.Interfaces;
 using BankSystem.App.Services;
 using BankSystem.Models;
 using BankSystem.Infrastructure;
 using ClientStorage;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace BankSystem.Data.Tests;
 
-public class EmployeeStorageTests
+public class EmployeeStorageTests : IDisposable
 {
-        static TestDataGenerator testDataGenerator = new TestDataGenerator();
-        private List<Employee> employees = testDataGenerator.EmployeesList();
-        private readonly EmployeeStorage _employeeStorage;
-        private readonly TestDataGenerator _dataGenerator;
+    private readonly EmployeeStorage _employeeStorage;
+    private readonly BankSystemDbContext _context;
+    private readonly TestDataGenerator _dataGenerator;
 
-        public EmployeeStorageTests()
+    public EmployeeStorageTests()
+    {
+        var options = new DbContextOptionsBuilder<BankSystemDbContext>()
+            .UseInMemoryDatabase(databaseName: "TestDatabase")
+            .Options;
+
+        _context = new BankSystemDbContext(options);
+        _employeeStorage = new EmployeeStorage(_context);
+        _dataGenerator = new TestDataGenerator();
+    }
+
+    public void Dispose()
+    {
+        _context.Database.EnsureDeleted();
+        _context.Dispose();
+    }
+
+    [Fact]
+    public async Task AddEmployeeAddsEmployeeSuccessfully()
+    {
+        Employee employee = new Employee()
         {
-            _employeeStorage = new EmployeeStorage(new BankSystemDbContext());
-            _dataGenerator = new TestDataGenerator();
-        }   
+            Id = Guid.NewGuid(),
+            Name = "John",
+            SecondName = "Bobson",
+            ThirdName = "Bibson",
+            Age = 25,
+            PasNumber = "123456789",
+            PhoneNumber = "1234567",
+            IsOwner = false,
+            Contract = "Контракт заключен",
+            Salary = 20000
+        };
 
-        [Fact]
-        public async Task AddEmployeeAddsEmployeeSuccessfully()
-        {
-            Employee employee = new Employee()
-            {
-                Id = new Guid(),
-                Name = "John",
-                SecondName = "Bobson",
-                ThirdName = "Bibson",
-                Age = 25,
-                PasNumber = "123456789",
-                PhoneNumber = "1234567",
-                IsOwner = false,
-                Contract = "Контракт заключен",
-                Salary = 20000
-            };
-            
-            await _employeeStorage.AddAsync(employee);
+        await _employeeStorage.AddAsync(employee);
 
-            employees = await _employeeStorage.GetAsync(employee.Id);
-            var myEmployee = employees.FirstOrDefault(e => e.Id == employee.Id); 
+        var employees = await _employeeStorage.GetAsync(employee.Id);
+        var myEmployee = employees.FirstOrDefault(e => e.Id == employee.Id);
 
-            Assert.Equal(myEmployee.Id, employee.Id);
-        }
+        Assert.NotNull(myEmployee);
+        Assert.Equal(myEmployee.Id, employee.Id);
+    }
         
     [Fact]
     public async Task UpdateEmployeetPositiveTest()
@@ -77,9 +90,9 @@ public class EmployeeStorageTests
             Salary = 20000
         };
         
-        await _employeeStorage.UpdateAsync(employee2);
+        await _employeeStorage.UpdateAsync(employee2.Id, employee2);
         
-        employees = await _employeeStorage.GetAsync(employee.Id);
+        var employees = await _employeeStorage.GetAsync(employee.Id);
         var myEmployee = employees.FirstOrDefault(e => e.Id == employee.Id); 
 
         Assert.Equal(myEmployee.Id, employee2.Id);

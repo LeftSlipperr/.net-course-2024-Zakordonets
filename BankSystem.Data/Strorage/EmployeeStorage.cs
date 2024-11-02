@@ -25,6 +25,13 @@ namespace BankSystem.Infrastructure
 
             return employee;
         }
+        
+        public async Task<Employee> GetUserAsync(Guid id)
+        {
+            var employee = await _bankSystemDbContext.Employees
+                .FirstOrDefaultAsync(c => c.Id == id);
+            return employee;
+        }
 
         public async Task AddAsync(Employee employee)
         {
@@ -32,8 +39,9 @@ namespace BankSystem.Infrastructure
             await _bankSystemDbContext.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Employee employee)
+        public async Task UpdateAsync(Guid id, Employee employee)
         {
+            employee.Id = id;
             var existingEmployee = await _bankSystemDbContext.Employees
                 .FirstOrDefaultAsync(e => e.Id == employee.Id);
 

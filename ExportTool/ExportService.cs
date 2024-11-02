@@ -9,13 +9,14 @@ namespace ExportTool;
 
 public class ExportService
 {
-    private BankSystem.Infrastructure.ClientStorage _clientStorage;
     private const int MaxFileSize = 100 * 100;
     private int _fileIndex = 1;
 
-    public ExportService()
+    private readonly BankSystem.Data.Storage.ClientStorage _clientStorage;
+
+    public ExportService(BankSystem.Data.Storage.ClientStorage clientStorage)
     {
-        _clientStorage = new BankSystem.Infrastructure.ClientStorage(new BankSystemDbContext());
+        _clientStorage = clientStorage;
     }
     
     public void WriteClientsToCsv(List<Client> listOfClients, string fullPath)

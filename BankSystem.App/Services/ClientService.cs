@@ -1,57 +1,70 @@
+using AutoMapper;
+using BankSystem.App.DTO;
 using BankSystem.App.Interfaces;
 using BankSystem.App.Services.Exceptions;
 using BankSystem.Models;
 
 namespace BankSystem.App.Services;
 
-public class ClientService
-{
-    private IClientStorage _clientStorage; 
-    private static readonly SemaphoreSlim _dbSemaphore = new SemaphoreSlim(1, 1);
+public class ClientService : IClientService
+{ 
+    private IClientStorage _storage;
+    private readonly IMapper _mapper;
 
-    public ClientService(IClientStorage clientStorage)
+    public ClientService(IClientStorage storage, IMapper mapper) 
     {
-        _clientStorage = clientStorage; 
+        _storage = storage;    
+        _mapper = mapper;
     }
 
-    public async Task<Dictionary<Client, List<Account>>> GetAsync(Client client)
+    public async Task<Dictionary<Client, List<Account>>> GetAsync(Guid id)
     {
-        return await _clientStorage.GetAsync(client.Id);
+        return  await _storage.GetAsync(id);
     }
-    
-    public async Task AddAsync(Client client)
+
+    public async Task<ClientDto> GetClientAsync(Guid id)
     {
-        if (client.Age < 18)
+        var client = await _storage.GetUserAsync(id);
+        var clientDto = _mapper.Map<ClientDto>(client);
+
+        return clientDto;
+    }
+
+    public async Task AddClientAsync(ClientDto clientDto)
+    {
+        if (clientDto.Age < 18)
             throw new UnderAgeClientException("Клиент моложе 18 лет");
 
-        if (client.PasNumber == "")
+        if (clientDto.PasNumber == "")
             throw new MissingPassportException("Клиент не имеет паспортных данных");
         
-        await _clientStorage.AddAsync(client);    
+        var client = _mapper.Map<Client>(clientDto); 
+        await _storage.AddAsync(client);
     }
     
-    public async Task AddAccountToClientAsync(Client client, Account account)
+    public async Task AddAccountAsync(Client client, Account account)
     {
-        await _clientStorage.AddAccountAsync(client, account);
+        await _storage.AddAccountAsync(client, account);
     }
     
-    public async Task UpdateClientAsync(Client client)
+    public async Task UpdateClientAsync(Guid id, ClientDto clientDto)
     {
 
-        if (client == null)
+        if (clientDto == null)
             throw new MissingPassportException("Клиент с таким паспортом не найден");
         
-        await _clientStorage.UpdateAsync(client);
+        var client = _mapper.Map<Client>(clientDto); 
+        await _storage.UpdateAsync(id, client);
     }
 
-    public async Task DeleteClientAsync(Client client)
+    public async Task DeleteClientAsync(Guid id)
     {
-        await _clientStorage.DeleteAsync(client.Id);
+        await _storage.DeleteAsync(id);
     }
 
-    public async Task DeleteAccountAsync(Account accountToDelete)
+    public async Task DeleteAccountAsync(Guid id)
     {
-        await _clientStorage.DeleteAccountAsync(accountToDelete.Id);
+        await _storage.DeleteAccountAsync(id);
     }
     
     public async Task UpdateAccountAsync(Account account)
@@ -61,15 +74,31 @@ public class ClientService
             throw new ArgumentNullException(nameof(account), "Лицевой счет не может быть нулевым."); 
         }
 
-        await _clientStorage.UpdateAccountAsync(account); 
+        await _storage.UpdateAccountAsync(account); 
+    }
+
+    public async Task<Dictionary<Client, List<Account>>> GetAllClientsWithAccountsAsync()
+    {
+        return await _storage.GetAllClientsWithAccountsAsync();
+    }
+
+    public async Task<ClientDto> FindClientAsync(string? name, string? secondName, string? thirdName,
+        string? phoneNumber, string? pasNumber,
+        int? age, int? accountNumber, decimal? balance)
+    {
+        int pageNumber = 1;
+        int pageSize = 10;
+        string sortBy = "Name";
+        
+        var clients = await _storage.GetClientsByParametersAsync(name, secondName, thirdName, phoneNumber, pasNumber, age, accountNumber, balance, pageNumber, pageSize, sortBy);
+        
+        var clientsDto = _mapper.Map<ClientDto>(clients.FirstOrDefault());
+        return clientsDto;
     }
 
     public async Task WithdrawFromAccountAsync(Client client, decimal amountToWithdraw)
     {
-        await _dbSemaphore.WaitAsync();
-        try
-        {
-            var clientAccountsDictionary = await _clientStorage.GetAsync(client.Id);
+            var clientAccountsDictionary = await _storage.GetAsync(client.Id);
 
             if (clientAccountsDictionary.TryGetValue(client, out var clientAccounts))
             {
@@ -78,7 +107,7 @@ public class ClientService
                     if (account.Amount >= amountToWithdraw)
                     {
                         account.Amount -= amountToWithdraw;
-                        await _clientStorage.UpdateAccountAsync(account);
+                        await _storage.UpdateAccountAsync(account);
                         return;
                     }
                 }
@@ -87,11 +116,7 @@ public class ClientService
             }
 
             throw new Exception($"Клиент с ID {client.Id} не найден.");
-        }
-        finally
-        {
-            _dbSemaphore.Release();
-        }
+        
     }
 
 
