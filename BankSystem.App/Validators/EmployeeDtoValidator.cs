@@ -4,9 +4,9 @@ using FluentValidation;
 
 namespace BankSystem.App.Validators;
 
-public class EmployeeValidator : AbstractValidator<EmployeeDto>
+public class EmployeeDtoValidator : AbstractValidator<EmployeeDto>
 {
-    public EmployeeValidator()
+    public EmployeeDtoValidator()
     {
         RuleFor(e => e.FullName)
             .NotNull()
