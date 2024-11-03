@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BankSystem.Infrastructure
 {
-    public class EmployeeStorage : IStorage<Employee, List<Employee>>
+    public class EmployeeStorage : IEmployeeStorage
     {
         private readonly BankSystemDbContext _bankSystemDbContext;
 
@@ -25,21 +25,32 @@ namespace BankSystem.Infrastructure
 
             return employee;
         }
+        
+        public async Task<Employee> GetUserAsync(Guid id)
+        {
+            var employee = await _bankSystemDbContext.Employees
+                .FirstOrDefaultAsync(c => c.Id == id);
+            return employee;
+        }
 
-        public async Task AddAsync(Employee employee)
+        public async Task<Guid> AddAsync(Employee employee)
         {
             await _bankSystemDbContext.Employees.AddAsync(employee);
             await _bankSystemDbContext.SaveChangesAsync();
+            return employee.Id;
         }
 
-        public async Task UpdateAsync(Employee employee)
+        public async Task UpdateAsync(Guid id, Employee employee)
         {
+            employee.Id = id;
             var existingEmployee = await _bankSystemDbContext.Employees
                 .FirstOrDefaultAsync(e => e.Id == employee.Id);
 
             if (existingEmployee != null)
             {
                 existingEmployee.Name = employee.Name;
+                existingEmployee.SecondName = employee.SecondName;
+                existingEmployee.ThirdName = employee.ThirdName;
                 existingEmployee.Age = employee.Age;
                 existingEmployee.PasNumber = employee.PasNumber;
                 existingEmployee.PhoneNumber = employee.PhoneNumber;

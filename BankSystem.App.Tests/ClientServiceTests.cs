@@ -1,26 +1,37 @@
 using System.Collections.Concurrent;
+using AutoMapper;
+using BankSystem.App.DTO;
 using BankSystem.App.Interfaces;
 using BankSystem.App.Services;
 using BankSystem.App.Services.Exceptions;
-using BankSystem.Infrastructure;
 using BankSystem.Models;
 using ClientStorage;
-using Xunit;
-using Xunit.Sdk;
+using Microsoft.EntityFrameworkCore;
 
 namespace BankSystem.App.Tests;
 
 public class ClientServiceTests
 {
-    private ClientService _clientService;
-    private IClientStorage _clientStorage;
-    private TestDataGenerator _testDataGenerator;
+    private readonly IClientStorage _clientStorage;
+    private readonly ClientService _clientService;
+    private readonly TestDataGenerator _dataGenerator;
+    private readonly IMapper _mapper;
 
     public ClientServiceTests()
     {
-        _clientStorage = new Infrastructure.ClientStorage(new BankSystemDbContext());
-        _clientService = new ClientService(_clientStorage);
-        _testDataGenerator = new TestDataGenerator();
+        var options = new DbContextOptionsBuilder<BankSystemDbContext>()
+            .UseNpgsql("Host=localhost;Port=5434;Username=postgres;Password=mysecretpassword;Database=local")
+            .Options;
+        
+        var mapperConfig = new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile<MappingProfile>();
+        });
+
+        _mapper = mapperConfig.CreateMapper();
+        _clientStorage = new Data.Storage.ClientStorage(new BankSystemDbContext(options));
+        _clientService = new ClientService(_clientStorage, _mapper);
+        _dataGenerator = new TestDataGenerator();
     }
 
     [Fact]
@@ -38,11 +49,13 @@ public class ClientServiceTests
             Balance = 500
         };
         
-        await _clientService.AddAsync(client);
+        var clientDto = _mapper.Map<ClientDto>(client);
         
-        var allClients = await _clientStorage.GetAsync(client.Id);
+        await _clientService.AddClientAsync(clientDto);
+        
+        var allClients = await _clientStorage.GetClientsByParametersAsync("John");
         Assert.Single(allClients);
-        Assert.Equal(client, allClients.First().Key);
+        Assert.Equal(client, allClients.First());
     }
 
     [Fact]
@@ -59,8 +72,9 @@ public class ClientServiceTests
             PhoneNumber = "123456789",
             Balance = 500
         };
+        var clientDto = _mapper.Map<ClientDto>(client);
         
-        await Assert.ThrowsAsync<UnderAgeClientException>( async () => await _clientService.AddAsync(client));
+        await Assert.ThrowsAsync<UnderAgeClientException>( async () => await _clientService.AddClientAsync(clientDto));
     }
 
     [Fact]
@@ -77,7 +91,9 @@ public class ClientServiceTests
             PhoneNumber = "123456789",
             Balance = 500
         };
-        await _clientService.AddAsync(client);
+        var clientDto = _mapper.Map<ClientDto>(client);
+        
+        await _clientService.AddClientAsync(clientDto);
 
         Account newAccount = new Account
         {
@@ -87,9 +103,11 @@ public class ClientServiceTests
             CurrencyName = "USD"
         };
         
-        await _clientService.AddAccountToClientAsync(client, newAccount);
+        var findClient = await _clientStorage.GetClientsByParametersAsync("John");
+        
+        await _clientService.AddAccountAsync(findClient.FirstOrDefault(), newAccount);
 
-        var storedClient = await _clientStorage.GetAsync(client.Id);
+        var storedClient = await _clientStorage.GetAllClientsWithAccountsAsync();
         Assert.Contains(storedClient.FirstOrDefault().Value, a => a.CurrencyName == "USD");
     }
 
@@ -107,7 +125,9 @@ public class ClientServiceTests
             PhoneNumber = "123456789",
             Balance = 500
         };
-        await _clientService.AddAsync(client);
+        var clientDto = _mapper.Map<ClientDto>(client);
+        
+        await _clientService.AddClientAsync(clientDto);
         
         Account oldAccount = new Account
         {
@@ -116,7 +136,10 @@ public class ClientServiceTests
             Amount = 100,
             CurrencyName = "RUB"
         };
-        await _clientService.AddAccountToClientAsync(client, oldAccount);
+        
+        var findClient = await _clientStorage.GetClientsByParametersAsync("John");
+        
+        await _clientService.AddAccountAsync(findClient.FirstOrDefault(), oldAccount);
 
         Account updatedAccount = new Account
         {
@@ -128,7 +151,7 @@ public class ClientServiceTests
         
         await _clientService.UpdateAccountAsync(updatedAccount);
         
-        var storedClient = await _clientStorage.GetAsync(client.Id);
+        var storedClient = await _clientStorage.GetAsync(findClient.FirstOrDefault().Id);
         Account resultAccount = storedClient.FirstOrDefault().Value.FirstOrDefault(a => a.Id == oldAccount.Id);
         Assert.Equal(500, resultAccount.Amount);
     }
@@ -148,10 +171,13 @@ public class ClientServiceTests
             PhoneNumber = "123456789",
             Balance = 500
         };
+        var clientDto = _mapper.Map<ClientDto>(client);
         
-        await _clientService.AddAsync(client);
+        await _clientService.AddClientAsync(clientDto);
         
-        var findById = await _clientStorage.GetAsync(client.Id);
+        var findClient = await _clientStorage.GetClientsByParametersAsync("John");
+        
+        var findById = await _clientStorage.GetAsync(findClient.FirstOrDefault().Id);
         
         Assert.NotEmpty(findById);
         Assert.Equal(client.Name, findById.First().Key.Name);
@@ -172,12 +198,13 @@ public class ClientServiceTests
             AccountNumber = 123,
             Balance = 123
         };
+        var clientDto = _mapper.Map<ClientDto>(client);
         
-        await _clientService.AddAsync(client);
+        await _clientService.AddClientAsync(clientDto);
         
-        await _clientService.DeleteClientAsync(client);
+        await _clientService.DeleteClientAsync(client.Id);
         
-        var newClient = await _clientService.GetAsync(client);
+        var newClient = await _clientService.GetAsync(client.Id);
 
         Assert.NotEqual(newClient.Keys.FirstOrDefault(c => c.Id == client.Id), client);
     }
@@ -192,22 +219,26 @@ public class ClientServiceTests
         {
             while (!cts.Token.IsCancellationRequested)
             {
-                _testDataGenerator.ClientsList(10);
-                var clientsWithAccounts = _testDataGenerator.ClientsDictionary();
+                _dataGenerator.ClientsList(10);
+                var clientsWithAccounts = _dataGenerator.ClientsDictionary();
             
                 foreach (var client in clientsWithAccounts)
                 {
-                    var clientAccounts = await _clientService.GetAsync(client.Key);
+                    var clientAccounts = await _clientService.GetAsync(client.Key.Id);
                     if (clientAccounts.Count == 0)
                     {
-                        await _clientService.AddAsync(client.Key);
+                        var clientDto = _mapper.Map<ClientDto>(client.Key);
+                        var id = await _clientService.AddClientAsync(clientDto);
+                        var findClient = await _clientStorage.GetAsync(id);
+                        
 
                         foreach (var account in client.Value)
                         {
-                            await _clientService.AddAccountToClientAsync(client.Key, account);
+                            
+                            await _clientService.AddAccountAsync(findClient.Keys.FirstOrDefault(), account);
                         }
 
-                        clients.TryAdd(client.Key, client.Value);
+                        clients.TryAdd(findClient.Keys.FirstOrDefault(), client.Value);
                     }
                 }
             }
@@ -218,14 +249,15 @@ public class ClientServiceTests
         
         foreach (var client in clients.Keys)
         {
-            tasks.Add(Task.Run(() => _clientService.WithdrawFromAccountAsync(client, amountToWithdraw)));
+            tasks.Add(Task.Run( async () => await _clientService.WithdrawFromAccountAsync(client, amountToWithdraw)));
         }
 
         await Task.WhenAll(tasks);
 
         foreach (var client in clients)
         {
-            var clientAccounts = await _clientService.GetAsync(client.Key);
+            
+            var clientAccounts = await _clientService.GetAsync(client.Key.Id);
             var updatedAccount = clientAccounts.Values.FirstOrDefault();
             Assert.Equal(0, updatedAccount.FirstOrDefault().Amount);
         }

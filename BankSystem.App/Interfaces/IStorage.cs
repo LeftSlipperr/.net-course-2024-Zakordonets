@@ -8,7 +8,8 @@ namespace BankSystem.App.Interfaces;
 public interface IStorage<T, TResult>
 {
     Task<TResult> GetAsync(Guid id);
-    Task AddAsync(T item);
-    Task UpdateAsync(T item);
+    Task<T> GetUserAsync (Guid id);
+    Task<Guid> AddAsync(T item);
+    Task UpdateAsync(Guid id, T item);
     Task DeleteAsync(Guid id);
 }

@@ -5,20 +5,31 @@ using BankSystem.Models;
 using Xunit;
 using BankSystem.Infrastructure;
 using ClientStorage;
+using Microsoft.EntityFrameworkCore;
 
 namespace BankSystem.Data.Tests;
 
 public class ClientStorageTests
 {
-    private static Infrastructure.ClientStorage _clientStorage = new Infrastructure.ClientStorage(new BankSystemDbContext());
-    private ClientService _clientService = new ClientService(_clientStorage);
+    
+    private readonly Storage.ClientStorage _clientStorage;
+    private readonly ClientService _clientService;
+
+    public ClientStorageTests()
+    {
+        var options = new DbContextOptionsBuilder<BankSystemDbContext>()
+            .UseInMemoryDatabase(databaseName: "TestDatabase")
+            .Options;
+
+        _clientStorage = new Storage.ClientStorage(new BankSystemDbContext(options));
+    }
    
     [Fact]
     public async Task AddClientAddsClientSuccessfully()
     {
         Client client = new Client
         {
-            Id = new Guid(),
+            Id = Guid.NewGuid(),
             Name = "John",
             SecondName = "Bobson",
             ThirdName = "Bibson",
@@ -29,9 +40,9 @@ public class ClientStorageTests
             Balance = 123
         };
         
-        await _clientService.AddAsync(client);
+        await _clientStorage.AddAsync(client);
 
-        var clients = await _clientService.GetAsync(client);
+        var clients = await _clientStorage.GetAsync(client.Id);
         var result = clients.FirstOrDefault();
         var myClient = result.Key;
         
@@ -44,7 +55,7 @@ public class ClientStorageTests
         
         Client client = new Client
         {
-            Id = new Guid(),
+            Id = Guid.NewGuid(),
             Name = "John",
             SecondName = "Bobson",
             ThirdName = "Bibson",
@@ -55,7 +66,7 @@ public class ClientStorageTests
             Balance = 123
         };
         
-        await _clientService.AddAsync(client);
+        await _clientStorage.AddAsync(client);
         
         var updatedClient = new Client
         {
@@ -70,9 +81,9 @@ public class ClientStorageTests
             Balance = 123
         };
         
-        await _clientService.UpdateClientAsync(updatedClient);
+        await _clientStorage.UpdateAsync(updatedClient.Id, updatedClient);
 
-        var newClient =  await _clientService.GetAsync(client);
+        var newClient =  await _clientStorage.GetAsync(client.Id);
         
         Assert.Equal(newClient.Keys.FirstOrDefault(c => c.Id == updatedClient.Id), updatedClient);
     }
@@ -82,7 +93,7 @@ public class ClientStorageTests
     {
         Client client = new Client
         {
-            Id = new Guid(),
+            Id = Guid.NewGuid(),
             Name = "John",
             SecondName = "Bobson",
             ThirdName = "Bibson",
@@ -93,11 +104,11 @@ public class ClientStorageTests
             Balance = 123
         };
         
-        await _clientService.AddAsync(client);
+        await _clientStorage.AddAsync(client);
         
-        await _clientService.DeleteClientAsync(client);
+        await _clientStorage.DeleteAsync(client.Id);
         
-        var newClient = await _clientService.GetAsync(client);
+        var newClient = await _clientStorage.GetAsync(client.Id);
 
         Assert.NotEqual(newClient.Keys.FirstOrDefault(c => c.Id == client.Id), client);
     }
@@ -119,7 +130,7 @@ public class ClientStorageTests
             Balance = 123
         };
         
-        await _clientService.AddAsync(client);
+        await _clientStorage.AddAsync(client);
         
         var account = new Account
         {
@@ -127,9 +138,9 @@ public class ClientStorageTests
             CurrencyName = "EUR"
         };
         
-        await _clientService.AddAccountToClientAsync(client, account);
+        await _clientStorage.AddAccountAsync(client, account);
         
-        var newClient = await _clientService.GetAsync(client);
+        var newClient = await _clientStorage.GetAsync(client.Id);
         var accounts = newClient.Values;
         var newAccount = accounts.FirstOrDefault();
         
@@ -152,16 +163,16 @@ public class ClientStorageTests
             Balance = 123
         };
     
-        await _clientService.AddAsync(client);
+        await _clientStorage.AddAsync(client);
     
         var oldAccount = new Account { Id = new Guid(), ClientId =client.Id, Amount = 1000, /*Currency = new Currency { CurrencyName = "USD", Symbol = "$" }*/ CurrencyName = "USD"};
-        await _clientService.AddAccountToClientAsync(client, oldAccount);
+        await _clientStorage.AddAccountAsync(client, oldAccount);
     
         var newAccount = new Account { Id = oldAccount.Id, ClientId =client.Id, Amount = 2000, /*Currency = new Currency { CurrencyName = "USD", Symbol = "$" }*/ CurrencyName = "USD"};
         
-        await _clientService.UpdateAccountAsync(newAccount);
+        await _clientStorage.UpdateAccountAsync(newAccount);
         
-        var newClient = await _clientService.GetAsync(client);
+        var newClient = await _clientStorage.GetAsync(client.Id);
         var accounts = newClient.Values;
         var updatedAccount = accounts.FirstOrDefault();
         var myAccount = updatedAccount.First(a => a.Id.Equals(newAccount.Id));
@@ -186,15 +197,15 @@ public class ClientStorageTests
             Balance = 123
         };
     
-        await _clientService.AddAsync(client);
+        await _clientStorage.AddAsync(client);
     
         var account = new Account { Id = new Guid(), ClientId = client.Id, Amount = 1000, /*Currency = new Currency { CurrencyName = "EURO", Symbol = "E" }*/ CurrencyName = "EUR"};
         
-        await _clientService.AddAccountToClientAsync(client, account);
+        await _clientStorage.AddAccountAsync(client, account);
         
-        await _clientService.DeleteAccountAsync(account);
+        await _clientStorage.DeleteAccountAsync(account.Id);
         
-        var newClient = await _clientService.GetAsync(client);
+        var newClient = await _clientStorage.GetAsync(client.Id);
         var accounts = newClient.Values;
         var updatedAccount = accounts.FirstOrDefault();
         Assert.DoesNotContain(updatedAccount, a => a.Id == account.Id);

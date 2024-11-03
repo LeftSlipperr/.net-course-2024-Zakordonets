@@ -14,7 +14,6 @@ public class TestDataGenerator
     private Dictionary<Client, List<Account>> clientsAccount = new Dictionary<Client, List<Account>>();
     private List<Employee> employees = new List<Employee>();
     private Dictionary<Employee, List<Account>> employeesAccount =  new Dictionary<Employee, List<Account>>();
-    
     Faker faker = new Faker("ru");
 
 

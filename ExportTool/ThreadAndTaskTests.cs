@@ -1,6 +1,8 @@
 using System.Collections.Concurrent;
 using BankSystem.App.Services;
 using BankSystem.Models;
+using ClientStorage;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -10,7 +12,7 @@ public class ThreadAndTaskTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly TestDataGenerator _testDataGenerator = new TestDataGenerator();
-    private readonly ExportService _exportService = new ExportService();
+    private readonly ExportService _exportService;
     private List<Client> _clients;
     private ConcurrentDictionary<string, Client> _clientsBag = new ConcurrentDictionary<string, Client>();
     private readonly object lock1 = new object();
@@ -19,6 +21,15 @@ public class ThreadAndTaskTests
     public ThreadAndTaskTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
+        
+        var optionsBuilder = new DbContextOptionsBuilder<BankSystemDbContext>();
+        optionsBuilder.UseNpgsql("Host=localhost;Port=5434;Username=postgres;Password=mysecretpassword;Database=local");
+        
+        var dbContext = new BankSystemDbContext(optionsBuilder.Options);
+        
+        var clientStorage = new BankSystem.Data.Storage.ClientStorage(dbContext);
+        
+        _exportService = new ExportService(clientStorage);
     }
 
     [Fact]

@@ -6,7 +6,6 @@ public class RateUpdaterService
 {
     
     private IClientStorage _clientStorage; 
-    private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
     
     public RateUpdaterService(IClientStorage clientStorage)
     {
@@ -23,16 +22,9 @@ public class RateUpdaterService
             {
                 foreach (var account in clientAccounts)
                 {
-                    await _semaphore.WaitAsync(cancellationToken);
-                    try
-                    {
                         account.Amount += 100;
                         await _clientStorage.UpdateAccountAsync(account);
-                    }
-                    finally
-                    {
-                        _semaphore.Release();
-                    }
+                    
                 }
             }
             
