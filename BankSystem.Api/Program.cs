@@ -1,6 +1,7 @@
 using BankSystem.App.DTO;
 using BankSystem.App.Interfaces;
 using BankSystem.App.Services;
+using BankSystem.App.Validators;
 using BankSystem.Infrastructure;
 using ClientStorage;
 using FluentValidation.AspNetCore;
@@ -26,8 +27,7 @@ builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
 builder.Services.AddFluentValidation(config =>
 {
-    config.RegisterValidatorsFromAssemblyContaining<ClientDto>();
-    config.RegisterValidatorsFromAssemblyContaining<EmployeeDto>();
+    config.RegisterValidatorsFromAssemblyContaining<ClientDtoValidator>();
 });
 
 
