@@ -30,7 +30,7 @@ builder.Services.AddFluentValidation(config =>
     config.RegisterValidatorsFromAssemblyContaining<ClientDtoValidator>();
 });
 
-
+builder.Services.AddHttpClient<CurrencyService>();
 
 var app = builder.Build();
 
