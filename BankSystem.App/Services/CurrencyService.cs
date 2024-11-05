@@ -1,22 +1,23 @@
 using BankSystem.App.DTO;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace BankSystem.App.Services
 {
     public class CurrencyService
     {
+        private readonly ApiSettings _apiSettings;
         private readonly HttpClient _httpClient;
-        private const string ApiKey = "edjCNTCqn4PWxEjML5zDjmpc3xXJfz";
-        private const string BaseUrl = "https://www.amdoren.com/api/";
 
-        public CurrencyService(HttpClient httpClient)
+        public CurrencyService(HttpClient httpClient, IOptions<ApiSettings> apiSettings)
         {
             _httpClient = httpClient;
+            _apiSettings = apiSettings.Value;
         }
-
+        
         public async Task<decimal> ConvertCurrencyAsync(string fromCurrency, string toCurrency, decimal amount)
         {
-            var url = $"{BaseUrl}currency.php?api_key={ApiKey}&from={fromCurrency}&to={toCurrency}&amount={amount}";
+            var url = $"{_apiSettings.BaseUrl}currency.php?api_key={_apiSettings.ApiKey}&from={fromCurrency}&to={toCurrency}&amount={amount}";
 
             HttpResponseMessage response = await _httpClient.GetAsync(url);
             

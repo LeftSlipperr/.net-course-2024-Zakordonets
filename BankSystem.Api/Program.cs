@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("BankSystemDb");
+builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
 
 builder.Services.AddDbContext<BankSystemDbContext>(options =>
     options.UseNpgsql(connectionString));
