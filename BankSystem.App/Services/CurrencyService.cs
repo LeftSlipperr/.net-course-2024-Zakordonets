@@ -15,14 +15,13 @@ namespace BankSystem.App.Services
             _apiSettings = apiSettings.Value;
         }
         
-        public async Task<decimal> ConvertCurrencyAsync(string fromCurrency, string toCurrency, decimal amount)
+        public async Task<decimal> ConvertCurrencyAsync(string fromCurrency, string toCurrency, decimal amount, CancellationToken cancellationToken)
         {
             var url = $"{_apiSettings.BaseUrl}currency.php?api_key={_apiSettings.ApiKey}&from={fromCurrency}&to={toCurrency}&amount={amount}";
 
-            HttpResponseMessage response = await _httpClient.GetAsync(url);
-            
-            if (!response.IsSuccessStatusCode)
-                throw new Exception("Failed to retrieve currency conversion data.");
+            HttpResponseMessage response = await _httpClient.GetAsync(url, cancellationToken);
+
+            response.EnsureSuccessStatusCode();
 
             string jsonResponse = await response.Content.ReadAsStringAsync();
             var conversionResult = JsonConvert.DeserializeObject<CurrencyResponse>(jsonResponse);

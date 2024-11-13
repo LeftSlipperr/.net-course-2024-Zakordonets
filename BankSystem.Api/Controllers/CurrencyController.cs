@@ -8,6 +8,7 @@ namespace BankSystem.Api.Controllers
     public class CurrencyController : ControllerBase
     {
         private readonly CurrencyService _currencyService;
+        private CancellationToken _cancellationToken = default;
 
         public CurrencyController(CurrencyService currencyService)
         {
@@ -19,7 +20,7 @@ namespace BankSystem.Api.Controllers
         {
             try
             {
-                decimal convertedAmount = await _currencyService.ConvertCurrencyAsync(from, to, amount);
+                decimal convertedAmount = await _currencyService.ConvertCurrencyAsync(from, to, amount, _cancellationToken);
                 return Ok(new { Amount = convertedAmount });
             }
             catch (Exception ex)
