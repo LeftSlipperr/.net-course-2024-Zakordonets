@@ -16,7 +16,7 @@ public class ClientController : ControllerBase
         _clientService = clientService;
     }
 
-    [HttpGet("GetClient")]
+    [HttpGet("{guid}", Name = "GetClient")]
     public async Task<IActionResult> GetClient([FromRoute] Guid guid) 
     {
         var response = await _clientService.GetClientAsync(guid);
