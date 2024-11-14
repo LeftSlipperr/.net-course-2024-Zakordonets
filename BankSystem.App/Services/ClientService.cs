@@ -1,8 +1,10 @@
+using System.Text;
 using AutoMapper;
 using BankSystem.App.DTO;
 using BankSystem.App.Interfaces;
 using BankSystem.App.Services.Exceptions;
 using BankSystem.Models;
+using Newtonsoft.Json;
 
 namespace BankSystem.App.Services;
 
@@ -11,11 +13,33 @@ public class ClientService : IClientService
     private IClientStorage _storage;
     private readonly IMapper _mapper;
     private static readonly SemaphoreSlim _dbSemaphore = new SemaphoreSlim(1, 1);
+    private string _token;
     public ClientService(IClientStorage storage, IMapper mapper) 
     {
         _storage = storage;    
         _mapper = mapper;
     }
+   
+    public async Task<AuthResponse> Authorise(AuthData data)
+    {
+        AuthResponse authResponse;
+        var serializedData = JsonConvert.SerializeObject(data);
+        var content = new StringContent(serializedData, Encoding.UTF8,
+            "application/json");
+        using (var client = new HttpClient())
+        {
+            HttpResponseMessage responseMessage = await client
+                .PostAsync("http://localhost:5154/swagger/index.html",
+                    content);
+            var message =
+                await responseMessage.Content.ReadAsStringAsync();
+            authResponse =
+                JsonConvert.DeserializeObject<AuthResponse>(message);
+        }
+        _token = authResponse.Token;
+        return authResponse;
+    }
+
     
     public async Task<Dictionary<Client, List<Account>>> GetAsync(Guid id)
     {
